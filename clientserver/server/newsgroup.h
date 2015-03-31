@@ -3,6 +3,7 @@
 
 class Newsgroup{
 public:
+  Newsgroup(string name);
 
 private:
   string name;
