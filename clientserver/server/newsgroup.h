@@ -8,4 +8,4 @@ public:
 private:
   string name;
   size_t id;
-}
+};
