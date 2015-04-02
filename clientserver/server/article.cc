@@ -9,3 +9,11 @@ size_t Article::getID(){
 std::string Article::getTitle(){
   return title;
 }
+
+std::string Article::getAuthor(){
+  return author;
+}
+
+std::string Article::getText(){
+  return text;
+}

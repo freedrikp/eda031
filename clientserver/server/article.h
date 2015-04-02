@@ -8,6 +8,8 @@ public:
   Article(std::string title, std::string author, std::string text, size_t id);
   size_t getID();
   std::string getTitle();
+  std::string getAuthor();
+  std::string getText();
 private:
   std::string title;
   std::string author;

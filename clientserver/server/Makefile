@@ -19,13 +19,15 @@ LDFLAGS   = -g -L..
 LDLIBS = -lclientserver
 
 # Targets
-PROGS = ramserver
+PROGS = ramserver testmemorydatabase
 
 all: $(PROGS)
 
 # Targets rely on implicit rules for compiling and linking
 # The dependency on libclientserver.a is not defined.
 ramserver: ramserver.o memoryDatabase.o article.o newsgroup.o
+
+testmemorydatabase: memoryDatabase.o article.o newsgroup.o
 
 # Phony targets
 .PHONY: all clean

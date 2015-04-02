@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <utility>
 
-
+MemoryDatabase::MemoryDatabase(): newsGroupCounter(0) {}
 
 std::vector<Newsgroup> MemoryDatabase::getNewsgroups(){
   std::vector<Newsgroup> result;

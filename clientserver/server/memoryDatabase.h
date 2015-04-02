@@ -7,7 +7,7 @@
 
 class MemoryDatabase : Database {
 public:
-  MemoryDatabase() = default;
+  MemoryDatabase();
   ~MemoryDatabase() = default;
   std::vector<Newsgroup> getNewsgroups();
   std::vector<Article> getArticles(size_t nGroupID);
