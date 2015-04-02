@@ -1,6 +1,6 @@
 #include "newsgroup.h"
 
-Newsgroup::Newgroup(std::string name, size_t id): name(name), id(id){};
+Newsgroup::Newsgroup(std::string name, size_t id): name(name), id(id){}
 
 size_t Newsgroup::getID(){
   return id;
