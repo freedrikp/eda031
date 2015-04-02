@@ -1,14 +1,24 @@
 #ifndef MEMDB_H
 #define MEMDB_H
 #include "database.h"
+#include <unordered_map>
+#include "newsgroup.h"
+#include "article.h"
 
-class MemoryDatabase : Databse {
+class MemoryDatabase : Database {
 public:
-  vector<Newsgroup> Database::getNewsgroups();
-  vector<Article> Database::getArticles(size_t nGroupID);
-  size_t Database::addNewsgroup(string name);
-  bool Database::removeNewsgroup(size_t nGroupID);
-  size_t Database::addArticle(size_t nGroupID, string title, string author, string text);
-  bool Database::removeArticle(size_t nGroupID, size_t articleID);
-}
+  MemoryDatabase() = default;
+  ~MemoryDatabase() = default;
+  std::vector<Newsgroup> getNewsgroups();
+  std::vector<Article> getArticles(size_t nGroupID);
+  bool addNewsgroup(std::string name);
+  bool removeNewsgroup(size_t nGroupID);
+  bool addArticle(size_t nGroupID, std::string title, std::string author, std::string text);
+  bool removeArticle(size_t nGroupID, size_t articleID);
+private:
+  std::unordered_map<size_t,Newsgroup> newsGroups;
+  std::unordered_map<size_t,std::unordered_map<size_t,Article>> articles;
+  std::unordered_map<size_t,size_t> articleCounters;
+  size_t newsGroupCounter;
+};
 #endif

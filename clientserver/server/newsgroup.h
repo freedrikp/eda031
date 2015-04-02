@@ -1,11 +1,15 @@
+#ifndef NGRP_H
+#define NGRP_H
 #include <string>
 #include <cstdlib>
 
 class Newsgroup{
 public:
-  Newsgroup(string name, size_t id);
-
+  Newsgroup(std::string name, size_t id);
+  size_t getID();
+  std::string getName();
 private:
-  string name;
+  std::  string name;
   size_t id;
 };
+#endif
