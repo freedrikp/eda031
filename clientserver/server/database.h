@@ -1,3 +1,5 @@
+#ifndef DATABASE_H
+#define DATABASE_H
 #include <cstdlib>
 #include <string>
 
@@ -10,3 +12,4 @@ public:
   virtual size_t addArticle(size_t nGroupID, string title, string author, string text) = 0;
   virtual bool removeArticle(size_t nGroupID, size_t articleID) = 0;
 };
+#endif
