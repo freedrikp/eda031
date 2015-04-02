@@ -48,13 +48,13 @@ bool MemoryDatabase::removeNewsgroup(size_t nGroupID){
 
 bool MemoryDatabase::addArticle(size_t nGroupID, std::string title, std::string author, std::string text){
    if (newsGroups.find(nGroupID) != newsGroups.end()){
-     if (find_if(articles[nGroupID].begin(), articles[nGroupID].end(),[&title](std::unordered_map<size_t,Article>::value_type& elem){return title == elem.second.getTitle();}) != articles[nGroupID].end()){
-         return false;
-     }
+    //  if (find_if(articles[nGroupID].begin(), articles[nGroupID].end(),[&title](std::unordered_map<size_t,Article>::value_type& elem){return title == elem.second.getTitle();}) != articles[nGroupID].end()){
+    //      return false;
+    //  }
      ++articleCounters[nGroupID];
      Article art(title, author, text, articleCounters[nGroupID]);
      //articles[articleCounters[nGroupID]] = art;
-     articles[articleCounters[nGroupID]].insert(std::pair<size_t,Article>(articleCounters[nGroupID],art));
+     articles[nGroupID].insert(std::pair<size_t,Article>(articleCounters[nGroupID],art));
      return true;
    }
      return false;
