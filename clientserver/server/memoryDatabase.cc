@@ -24,6 +24,15 @@ std::vector<Article> MemoryDatabase::getArticles(size_t nGroupID){
   return result;
 }
 
+Article MemoryDatabase::getArticle(size_t nGroupID, size_t articleID){
+  if (newsGroups.find(nGroupID) != newsGroups.end()){
+      auto it = articles[nGroupID].find(articleID);
+      if (it != articles[nGroupID].end()){
+        return it->second;
+      }
+  } 
+}
+
 bool MemoryDatabase::addNewsgroup(std::string name){
   if (find_if(newsGroups.begin(), newsGroups.end(),[&name](std::unordered_map<size_t,Newsgroup>::value_type& elem){return name == elem.second.getName();}) != newsGroups.end()){
       return false;

@@ -11,6 +11,7 @@ public:
   ~MemoryDatabase() = default;
   std::vector<Newsgroup> getNewsgroups();
   std::vector<Article> getArticles(size_t nGroupID);
+  Article getArticle(size_t nGroupID, size_t articleID);
   bool addNewsgroup(std::string name);
   bool removeNewsgroup(size_t nGroupID);
   bool addArticle(size_t nGroupID, std::string title, std::string author, std::string text);

@@ -48,4 +48,9 @@ int main(){
 
     std::cout << "Removing nonexistent article: " << memdb.removeArticle(200,33) << std::endl;
 
+    std::cout << "Getting article 1 in group 7: ";
+
+    Article elem1 = memdb.getArticle(7,1);
+    std::cout << "article: "<<elem1.getID() << " " << elem1.getTitle() << " " << elem1.getAuthor() << " " << elem1.getText() << std::endl;
+
 }
