@@ -217,4 +217,17 @@ int main(){
     }catch (NoArticleException e3){
       std::cout << "Article does not exist" << std::endl;
     }
+
+    std::cout << "Getting articles for nonexistent group: ";
+    try {
+
+      memdb.getArticles(70);
+std::cout << "Worked" << std::endl;
+    }catch (NewsgroupExistsException e1){
+      std::cout << "Newsgroup already exists" << std::endl;
+    }catch (NoNewsgroupException e2){
+      std::cout << "Newsgroup does not exist" << std::endl;
+    }catch (NoArticleException e3){
+      std::cout << "Article does not exist" << std::endl;
+    }
 }
