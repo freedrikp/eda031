@@ -11,7 +11,7 @@ std::vector<Newsgroup> MemoryDatabase::getNewsgroups(){
   }
   sort(result.begin(),result.end(),[](Newsgroup& group1, Newsgroup& group2){return group1.getID() < group2.getID();});
   return result;
-};
+}
 
 std::vector<Article> MemoryDatabase::getArticles(size_t nGroupID){
   std::vector<Article> result;
@@ -22,7 +22,7 @@ std::vector<Article> MemoryDatabase::getArticles(size_t nGroupID){
     sort(result.begin(),result.end(),[](Article& art1, Article& art2){return art1.getID() < art2.getID();});
 }
   return result;
-};
+}
 
 bool MemoryDatabase::addNewsgroup(std::string name){
   if (find_if(newsGroups.begin(), newsGroups.end(),[&name](std::unordered_map<size_t,Newsgroup>::value_type& elem){return name == elem.second.getName();}) != newsGroups.end()){
@@ -33,7 +33,7 @@ bool MemoryDatabase::addNewsgroup(std::string name){
   //newsGroups[newsGroupCounter] = group;
   newsGroups.insert(std::pair<size_t,Newsgroup>(newsGroupCounter,group));
   return true;
-};
+}
 
 bool MemoryDatabase::removeNewsgroup(size_t nGroupID){
   auto it = newsGroups.find(nGroupID);
@@ -44,7 +44,7 @@ bool MemoryDatabase::removeNewsgroup(size_t nGroupID){
   }else{
     return false;
   }
-};
+}
 
 bool MemoryDatabase::addArticle(size_t nGroupID, std::string title, std::string author, std::string text){
    if (newsGroups.find(nGroupID) != newsGroups.end()){
@@ -58,7 +58,7 @@ bool MemoryDatabase::addArticle(size_t nGroupID, std::string title, std::string 
      return true;
    }
      return false;
- };
+ }
 
 bool MemoryDatabase::removeArticle(size_t nGroupID, size_t articleID){
   if (newsGroups.find(nGroupID) != newsGroups.end()){
@@ -66,4 +66,4 @@ bool MemoryDatabase::removeArticle(size_t nGroupID, size_t articleID){
       return true;
   }
   return false;
-};
+}
