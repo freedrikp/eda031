@@ -12,10 +12,10 @@ public:
   std::vector<Newsgroup> getNewsgroups();
   std::vector<Article> getArticles(size_t nGroupID);
   Article getArticle(size_t nGroupID, size_t articleID);
-  bool addNewsgroup(std::string name);
-  bool removeNewsgroup(size_t nGroupID);
-  bool addArticle(size_t nGroupID, std::string title, std::string author, std::string text);
-  bool removeArticle(size_t nGroupID, size_t articleID);
+  void addNewsgroup(std::string name);
+  void removeNewsgroup(size_t nGroupID);
+  void addArticle(size_t nGroupID, std::string title, std::string author, std::string text);
+  void removeArticle(size_t nGroupID, size_t articleID);
 private:
   std::unordered_map<size_t,Newsgroup> newsGroups;
   std::unordered_map<size_t,std::unordered_map<size_t,Article>> articles;
