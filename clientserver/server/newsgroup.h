@@ -6,8 +6,8 @@
 class Newsgroup{
 public:
   Newsgroup(std::string name, size_t id);
-  size_t getID();
-  std::string getName();
+  size_t getID() const;
+  std::string getName() const;
 private:
   std::  string name;
   size_t id;

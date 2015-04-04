@@ -12,7 +12,7 @@ std::vector<Newsgroup> MemoryDatabase::getNewsgroups(){
   for (auto it = newsGroups.begin(); it != newsGroups.end(); ++it){
     result.push_back(it->second);
   }
-  sort(result.begin(),result.end(),[](Newsgroup& group1, Newsgroup& group2){return group1.getID() < group2.getID();});
+  sort(result.begin(),result.end(),[](const Newsgroup& group1, const Newsgroup& group2){return group1.getID() < group2.getID();});
   return result;
 }
 
@@ -22,7 +22,7 @@ std::vector<Article> MemoryDatabase::getArticles(size_t nGroupID){
     for (auto it = articles[nGroupID].begin(); it != articles[nGroupID].end(); ++it){
       result.push_back(it->second);
     }
-    sort(result.begin(),result.end(),[](Article& art1, Article& art2){return art1.getID() < art2.getID();});
+    sort(result.begin(),result.end(),[](const Article& art1, const Article& art2){return art1.getID() < art2.getID();});
 }else{
   throw NoNewsgroupException();
 }

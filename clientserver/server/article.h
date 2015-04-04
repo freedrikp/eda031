@@ -6,10 +6,10 @@
 class Article {
 public:
   Article(std::string title, std::string author, std::string text, size_t id);
-  size_t getID();
-  std::string getTitle();
-  std::string getAuthor();
-  std::string getText();
+  size_t getID() const;
+  std::string getTitle() const;
+  std::string getAuthor() const;
+  std::string getText() const;
 private:
   std::string title;
   std::string author;
