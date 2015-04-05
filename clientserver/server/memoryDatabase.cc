@@ -42,14 +42,15 @@ Article MemoryDatabase::getArticle(size_t nGroupID, size_t articleID){
   }
 }
 
-void MemoryDatabase::addNewsgroup(std::string name){
+bool MemoryDatabase::addNewsgroup(std::string name){
   if (find_if(newsGroups.begin(), newsGroups.end(),[&name](std::unordered_map<size_t,Newsgroup>::value_type& elem){return name == elem.second.getName();}) != newsGroups.end()){
-      throw NewsgroupExistsException();
+      return false;
   }
   ++newsGroupCounter;
   Newsgroup group(name,newsGroupCounter);
   //newsGroups[newsGroupCounter] = group;
   newsGroups.insert(std::pair<size_t,Newsgroup>(newsGroupCounter,group));
+  return true;
 }
 
 void MemoryDatabase::removeNewsgroup(size_t nGroupID){
