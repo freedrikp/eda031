@@ -177,7 +177,17 @@ int main(int argc, char* argv[]){
 							break;
 						}
 						try{
-							database.getArticles(nGroupID);
+							vector<Article> articles = database.getArticles(nGroupID);
+// ANS_LIST_ART [ANS_ACK num_p [num_p string_p]* | ANS_NAK ERR_NG_DOES_NOT_EXIST] ANS_END
+							writeCode(conn, Protocol::ANS_LIST_ART);
+							writeCode(conn, Protocol::ANS_ACK);
+							writeNumber(conn, articles.size());
+							for(auto it = articles.begin(); it < articles.end(); ++it){
+								cout << "writing number: "<< it->getID() << " and name " <<it->getTitle()<<endl;
+								writeNumber(conn, it->getID());
+								writeString(conn, it->getTitle());
+							}
+
 						} catch (NoNewsgroupException nne){
 							writeCode(conn, Protocol::ANS_NAK);
 							writeCode(conn, Protocol::ERR_NG_DOES_NOT_EXIST);
