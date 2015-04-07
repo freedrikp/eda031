@@ -5,7 +5,9 @@
 #include "protocol.h"
 #include "memoryDatabase.h"
 #include "newsgroup.h"
+#include "article.h"
 #include "nonewsgroupexception.h"
+#include "noarticleexception.h"
 
 #include <memory>
 #include <iostream>
@@ -192,12 +194,32 @@ int main(int argc, char* argv[]){
 					cout << "@6" << endl;
 					break;
 
-					case Protocol::COM_GET_ART:
-					cout << "@7" << endl;
-					break;
+					case Protocol::COM_GET_ART:{
+						int newsgroupId = readInt(conn);
+						int articleId = readInt(conn);
+						if(readCode(conn) != Protocol::COM_END){
+							cout << "Protocol violation on get article" <<endl;
+						}
+						try{
+							Article article = database.getArticle(newsgroupId, articleId);
+							writeCode(conn, Protocol::ANS_GET_ART);
+							writeString(conn, article.getTitle());
+							writeString(conn, article.getAuthor());
+							writeString(conn, article.getText());
+						}catch(NoNewsgroupException e){
+							writeCode(conn, Protocol::ANS_NAK);
+							writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
+						}catch(NoArticleException e){
+							writeCode(conn, Protocol::ANS_NAK);
+							writeCode(conn,Protocol::ERR_ART_DOES_NOT_EXIST);
+						}
+						writeCode(conn, Protocol::ANS_END);
+						cout << "@7" << endl;
+						break;
+					}
 
 					case Protocol::COM_END:
-					cout << "@8" << endl;
+					cout << "Protocol violation" << endl;
 					break;
 
 					default:
