@@ -183,9 +183,11 @@ int main(int argc, char* argv[]){
 						if(readCode(conn) != Protocol::COM_END){
 							throw ProtocolViolationException("List art");
 						}
+						writeCode(conn, Protocol::ANS_LIST_ART);
 						try{
+							cout << "# apa 1" << endl;
 							vector<Article> articles = database.getArticles(nGroupID);
-							writeCode(conn, Protocol::ANS_LIST_ART);
+							cout << "# apa 2" << endl;
 							writeCode(conn, Protocol::ANS_ACK);
 							writeNumber(conn, articles.size());
 							for(auto it = articles.begin(); it < articles.end(); ++it){
@@ -195,6 +197,7 @@ int main(int argc, char* argv[]){
 							}
 
 						} catch (NoNewsgroupException nne){
+							cout << "# apa 9" << endl;
 							writeCode(conn, Protocol::ANS_NAK);
 							writeCode(conn, Protocol::ERR_NG_DOES_NOT_EXIST);
 						}
