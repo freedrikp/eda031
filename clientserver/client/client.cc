@@ -57,7 +57,7 @@ void Client::writeString(const std::string& s) {
 }
 
 Client::Selection Client::queryUser(){
-  std::cout << "What is my bidding, master?" << std::endl;
+  std::cout << std::endl << "What is my bidding, master?" << std::endl << std::endl;
   std::cout << "List newsgroups - 1" << std::endl;
   std::cout << "Create newsgroup - 2" << std::endl;
   std::cout << "Delete newsgroup - 3" << std::endl;
@@ -87,17 +87,76 @@ Client::Selection Client::queryUser(){
   }
 }
 
+void Client::listNewsgroups(){
+  writeCode(Protocol::COM_LIST_NG);
+  writeCode(Protocol::COM_END);
+  if (!(readCode() == Protocol::ANS_LIST_NG)){
+    std::cerr << "Protocol does not match" << std::endl;
+    return;
+  }
+  if (!(readCode() == Protocol::PAR_NUM)){
+    std::cerr << "Protocol does not match" << std::endl;
+    return;
+  }
+  int n = readNumber();
+  for (int i = 0; i != n; ++i){
+    if (!(readCode() == Protocol::PAR_NUM)){
+      std::cerr << "Protocol does not match" << std::endl;
+      return;
+    }
+    int id = readNumber();
+    if (!(readCode() == Protocol::PAR_STRING)){
+      std::cerr << "Protocol does not match" << std::endl;
+      return;
+    }
+    int nbrChars = readNumber();
+    std::string name = readString(nbrChars);
+    std::cout << id << " " << name << std::endl;
+  }
+}
+
+void Client::createNewsgroup(std::string& name){
+  writeCode(Protocol::COM_CREATE_NG);
+  writeString(name);
+  writeCode(Protocol::COM_END);
+  if (!(readCode() == Protocol::ANS_CREATE_NG)){
+    std::cerr << "Protocol does not match - 1" << std::endl;
+    return;
+  }
+  unsigned char code = readCode();
+  if (code == Protocol::ANS_ACK){
+    std::cout << "Newsgroup created" << std::endl;
+  }else if (code == Protocol::ANS_NAK){
+    if (!(readCode() == Protocol::ERR_NG_ALREADY_EXISTS)){
+      std::cerr << "Protocol does not match - 2" << std::endl;
+      return;
+    }
+    std::cout << "Newsgroup already exists" << std::endl;
+  }else{
+    std::cerr << "Protocol does not match - 3" << std::endl;
+    return;
+  }
+  if (!(readCode() == Protocol::ANS_END)){
+    std::cerr << "Protocol does not match - 3" << std::endl;
+    return;
+  }
+
+}
+
 void Client::interact(){
   while(true){
     Selection sel = queryUser();
     switch (sel){
 
       case LISTNG: {
-
+        listNewsgroups();
         break;
       }
       case CREATENG: {
-
+        std::cout << "What should the newsgroup be called?" << std::endl;
+        std::string name;
+        std::cin >> name;
+        createNewsgroup(name);
         break;
       }
       case DELETENG: {
