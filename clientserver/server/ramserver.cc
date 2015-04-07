@@ -138,7 +138,7 @@ int main(int argc, char* argv[]){
 							string name = readString(conn, n);
 							cout << "n: " << n << ", name: " << name << endl;
 							if(readCode(conn) != Protocol::COM_END){
-								cout << "Protocol violation on list newsgroups" <<endl;
+								cout << "Protocol violation on list newsgroups" << endl;
 							}
 							writeCode(conn, Protocol::ANS_CREATE_NG);
 							if(database.addNewsgroup(name)){
@@ -149,19 +149,19 @@ int main(int argc, char* argv[]){
 							}
 							writeCode(conn, Protocol::ANS_END);
 						} else {
-							cout << "Protocol violation on list newsgroups" <<endl;
+							cout << "Protocol violation on list newsgroups" << endl;
 						}
 						break;
 					}
 					case Protocol::COM_DELETE_NG:{
 						cout << "@COM_DELETE_NG" << endl;
-						size_t ngID = static_cast<size_t>(readInt(conn));
+						size_t nGroupID = static_cast<size_t>(readInt(conn));
 						if(readCode(conn) != Protocol::COM_END){
-							cout << "Protocol violation on delete newsgroup" <<endl;
+							cout << "Protocol violation on delete newsgroup" << endl;
 							break;
 						}
 						writeCode(conn, Protocol::ANS_CREATE_NG);
-						if(database.removeNewsgroup(ngID)){
+						if(database.removeNewsgroup(nGroupID)){
 							writeCode(conn, Protocol::ANS_ACK);
 						} else {
 							writeCode(conn, Protocol::ANS_NAK);
@@ -172,7 +172,18 @@ int main(int argc, char* argv[]){
 					}
 					case Protocol::COM_LIST_ART:{
 						cout << "@COM_LIST_ART" << endl;
-
+						size_t nGroupID = static_cast<size_t>(readInt(conn));
+						if(readCode(conn) != Protocol::COM_END){
+							cout << "Protocol violation on list articles" << endl;
+							break;
+						}
+						try{
+							database.getArticles(nGroupID);
+						} catch (NoNewsgroupException nne){
+							writeCode(conn, Protocol::ANS_NAK);
+							writeCode(conn, Protocol::ERR_NG_DOES_NOT_EXIST);
+						}
+						writeCode(conn, Protocol::ANS_END);
 						break;
 					}
 					case Protocol::COM_CREATE_ART:
