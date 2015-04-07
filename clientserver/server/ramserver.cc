@@ -112,7 +112,7 @@ int main(int argc, char* argv[]){
 				cout << "kase: " << kase << endl;
 				switch(kase){
 					case Protocol::COM_LIST_NG:{
-						cout << "@list_ng" << endl;
+						cout << "@COM_LIST_NG" << endl;
 						if(readCode(conn) != Protocol::COM_END){
 							cout << "Protocol violation on create newsgroup" <<endl;
 							break;
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]){
 						break;
 					}
 					case Protocol::COM_CREATE_NG:{
-						cout << "@create_ng" << endl;
+						cout << "@COM_CREATE_NG" << endl;
 						if(readCode(conn) == Protocol::PAR_STRING){
 							int n = readInt(conn);
 							string name = readString(conn, n);
@@ -152,7 +152,7 @@ int main(int argc, char* argv[]){
 						break;
 					}
 					case Protocol::COM_DELETE_NG:{
-						cout << "@delete_ng" << endl;
+						cout << "@COM_DELETE_NG" << endl;
 						size_t ngID = static_cast<size_t>(readInt(conn));
 						if(readCode(conn) != Protocol::COM_END){
 							cout << "Protocol violation on delete newsgroup" <<endl;
@@ -167,11 +167,12 @@ int main(int argc, char* argv[]){
 							writeCode(conn, Protocol::ERR_NG_DOES_NOT_EXIST);
 						}
 						writeCode(conn, Protocol::ANS_END);
+						break;
 					}
-					case Protocol::COM_LIST_ART:
-					cout << "@4" << endl;
-					break;
-
+					case Protocol::COM_LIST_ART:{
+						cout << "@COM_LIST_ART" << endl;
+						break;
+					}
 					case Protocol::COM_CREATE_ART:
 					cout << "@5" << endl;
 					break;
