@@ -49,7 +49,10 @@ void interact(ClientMessageHandler& client){
         break;
       }
       case LIST_ART: {
-
+        std::cout << "For which newsgroup do you wish to list articles?" << std::endl;
+        int groupID;
+        std::cin >> groupID;
+        client.listArticles(groupID);
         break;
       }
       case CREATE_ART: {

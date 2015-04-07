@@ -89,7 +89,7 @@ void ClientMessageHandler::listNewsgroups(){
       return;
     }
     std::string name = readString();
-    if ( name.empty()){
+    if (name.empty()){
       return;
     }
     std::cout << id << " " << name << std::endl;
@@ -154,18 +154,67 @@ void ClientMessageHandler::deleteNewsgroup(int groupID){
   }
 }
 
-void ClientMessageHandler::listArticlesIngroup(int groupID){
-
+void ClientMessageHandler::listArticles(int groupID){
+  writeCode(Protocol::COM_LIST_ART);
+  writeNumber(groupID);
+  writeCode(Protocol::COM_END);
+  if (readCode() != Protocol::ANS_LIST_ART){
+    std::cerr << "Protocol does not match - ANS_LIST_ART" << std::endl;
+    return;
+  }
+  unsigned char code = readCode();
+  if (code == Protocol::ANS_ACK){
+    int n = readNumber();
+    if (n < 0){
+      return;
+    }
+    for (int i = 0; i != n; ++i){
+      int id = readNumber();
+      if (id < 0){
+        return;
+      }
+      std::string title = readString();
+      if (title.empty()){
+        return;
+      }
+      std::cout << id << " " << title << std::endl;
+    }
+  }else if (code == Protocol::ANS_NAK){
+    if (readCode() != Protocol::ERR_NG_DOES_NOT_EXIST){
+      std::cerr << "Protocol does not match - ERR_NG_DOES_NOT_EXIST" << std::endl;
+      return;
+    }
+    std::cout << "Newsgroup does not exist" << std::endl;
+  }else{
+    std::cerr << "Protocol does not match - ANS_ACK|ANS_NAK" << std::endl;
+    return;
+  }
+  if (readCode() != Protocol::ANS_END){
+    std::cerr << "Protocol does not match - ANS_END" << std::endl;
+    return;
+  }
 }
 
 void ClientMessageHandler::createArticle(int groupID, std::string title, std::string author, std::string text){
 
+  if (readCode() != Protocol::ANS_END){
+    std::cerr << "Protocol does not match - ANS_END" << std::endl;
+    return;
+  }
 }
 
 void ClientMessageHandler::deleteArticle(int groupID, int articleID){
 
+  if (readCode() != Protocol::ANS_END){
+    std::cerr << "Protocol does not match - ANS_END" << std::endl;
+    return;
+  }
 }
 
 void ClientMessageHandler::getArticle(int groupID, int articleID){
 
+  if (readCode() != Protocol::ANS_END){
+    std::cerr << "Protocol does not match - ANS_END" << std::endl;
+    return;
+  }
 }
