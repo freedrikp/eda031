@@ -45,19 +45,17 @@ int readInt(const shared_ptr<Connection>& conn) {
 string readString(const shared_ptr<Connection>& conn) {
 	cout << "@oj3" << endl;
 	if(readCode(conn) != Protocol::PAR_STRING){
-		cout << "@oj2" << endl;
 		// throw new ProtocolViolationException("Read String");
 	}
 	cout << "@oj4" << endl;
 	string s;
-
 
 	unsigned char byte1 = conn->read();
 	unsigned char byte2 = conn->read();
 	unsigned char byte3 = conn->read();
 	unsigned char byte4 = conn->read();
 	int n = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
-	cout << n<<endl;
+
 	for(int i = 0; i < n; ++i){
 		s += readCode(conn);
 	}
@@ -134,9 +132,7 @@ int main(int argc, char* argv[]){
 					case Protocol::COM_LIST_NG:{
 						cout << "@COM_LIST_NG" << endl;
 						if(readCode(conn) != Protocol::COM_END){
-							
 							//throw new ProtocolViolationException("Create ng");
-
 						}
 						writeCode(conn, Protocol::ANS_LIST_NG);
 						vector<Newsgroup> groups = database.getNewsgroups();
@@ -154,10 +150,8 @@ int main(int argc, char* argv[]){
 						cout << "@COM_CREATE_NG" << endl;
 						string name = readString(conn);
 						if(readCode(conn) != Protocol::COM_END){
-							cout << "@oj1" << endl;
 								//throw new ProtocolViolationException("List ng");
 						}
-						cout << "@ok5" << endl;
 						writeCode(conn, Protocol::ANS_CREATE_NG);
 						if(database.addNewsgroup(name)){
 							writeCode(conn, Protocol::ANS_ACK);
@@ -174,7 +168,6 @@ int main(int argc, char* argv[]){
 						size_t nGroupID = static_cast<size_t>(readInt(conn));
 						if(readCode(conn) != Protocol::COM_END){
 							//throw new ProtocolViolationException("Delete ng");
-
 						}
 						writeCode(conn, Protocol::ANS_DELETE_NG);
 						if(database.removeNewsgroup(nGroupID)){
@@ -188,10 +181,6 @@ int main(int argc, char* argv[]){
 					}
 					case Protocol::COM_LIST_ART:{
 						cout << "@COM_LIST_ART" << endl;
-						// if(readCode(conn) != Protocol::PAR_STRING){
-						// 	cout << "Protocol violation on list articles" << endl;
-						// 	break;
-						// }
 						size_t nGroupID = static_cast<size_t>(readInt(conn));
 						if(readCode(conn) != Protocol::COM_END){
 							//throw new ProtocolViolationException("List art");
