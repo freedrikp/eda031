@@ -179,9 +179,27 @@ int main(int argc, char* argv[]){
 					cout << "@5" << endl;
 					break;
 
-					case Protocol::COM_DELETE_ART:
-					cout << "@6" << endl;
-					break;
+					case Protocol::COM_DELETE_ART:{
+						cout << "@7" << endl;
+						int newsgroupId = readInt(conn);
+						int articleId = readInt(conn);
+						writeCode(conn, Protocol::ANS_DEL_ART);
+						if(readCode(conn) != Protocol::COM_END){
+							cout << "Protocol violation on delete article" <<endl;
+						}
+						try{
+							database.deleteArticle(newsgroupId, articleId);
+							writeCode(conn, Protocol::ANS_ACK);
+						}catch(NoNewsgroupException e){
+							writeCode(conn, Protocol::ANS_NAK);
+							writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
+						}catch(NoArticleException e){
+							writeCode(conn, Protocol::ANS_NAK);
+							writeCode(conn,Protocol::ERR_ART_DOES_NOT_EXIST);
+						}
+						writeCode(conn, Protocol::ANS_END);
+						break;
+					}
 
 					case Protocol::COM_GET_ART:{
 						int newsgroupId = readInt(conn);
@@ -189,9 +207,10 @@ int main(int argc, char* argv[]){
 						if(readCode(conn) != Protocol::COM_END){
 							cout << "Protocol violation on get article" <<endl;
 						}
+						writeCode(conn, Protocol::ANS_GET_ART);
 						try{
 							Article article = database.getArticle(newsgroupId, articleId);
-							writeCode(conn, Protocol::ANS_GET_ART);
+							writeCode(conn, Protocol::ANS_ACK);
 							writeString(conn, article.getTitle());
 							writeString(conn, article.getAuthor());
 							writeString(conn, article.getText());
