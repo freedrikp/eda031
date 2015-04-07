@@ -8,6 +8,7 @@
 #include "article.h"
 #include "nonewsgroupexception.h"
 #include "noarticleexception.h"
+#include "protocolviolationexception.h"
 
 #include <memory>
 #include <iostream>
@@ -28,6 +29,9 @@ unsigned char readCode(const shared_ptr<Connection>& conn) {
 * Read an integer from a client.
 */
 int readInt(const shared_ptr<Connection>& conn) {
+	if(readCode(conn) != Protocol::PAR_NUM){
+		// throw new ProtocolViolationException("Read Int");
+	}
 	unsigned char byte1 = conn->read();
 	unsigned char byte2 = conn->read();
 	unsigned char byte3 = conn->read();
@@ -39,8 +43,21 @@ int readInt(const shared_ptr<Connection>& conn) {
 * Read an integer from a client.
 */
 string readString(const shared_ptr<Connection>& conn) {
+	cout << "@oj3" << endl;
+	if(readCode(conn) != Protocol::PAR_STRING){
+		cout << "@oj2" << endl;
+		// throw new ProtocolViolationException("Read String");
+	}
+	cout << "@oj4" << endl;
 	string s;
-	int n = readInt(conn);
+
+
+	unsigned char byte1 = conn->read();
+	unsigned char byte2 = conn->read();
+	unsigned char byte3 = conn->read();
+	unsigned char byte4 = conn->read();
+	int n = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+	cout << n<<endl;
 	for(int i = 0; i < n; ++i){
 		s += readCode(conn);
 	}
@@ -117,8 +134,9 @@ int main(int argc, char* argv[]){
 					case Protocol::COM_LIST_NG:{
 						cout << "@COM_LIST_NG" << endl;
 						if(readCode(conn) != Protocol::COM_END){
-							cout << "Protocol violation on create newsgroup" <<endl;
-							break;
+							
+							//throw new ProtocolViolationException("Create ng");
+
 						}
 						writeCode(conn, Protocol::ANS_LIST_NG);
 						vector<Newsgroup> groups = database.getNewsgroups();
@@ -134,32 +152,31 @@ int main(int argc, char* argv[]){
 					}
 					case Protocol::COM_CREATE_NG:{
 						cout << "@COM_CREATE_NG" << endl;
-						if(readCode(conn) == Protocol::PAR_STRING){
-							string name = readString(conn);
-							if(readCode(conn) != Protocol::COM_END){
-								cout << "Protocol violation on list newsgroups" << endl;
-							}
-							writeCode(conn, Protocol::ANS_CREATE_NG);
-							if(database.addNewsgroup(name)){
-								writeCode(conn, Protocol::ANS_ACK);
-							} else {
-								writeCode(conn, Protocol::ANS_NAK);
-								writeCode(conn, Protocol::ERR_NG_ALREADY_EXISTS);
-							}
-							writeCode(conn, Protocol::ANS_END);
-						} else {
-							cout << "Protocol violation on list newsgroups" << endl;
+						string name = readString(conn);
+						if(readCode(conn) != Protocol::COM_END){
+							cout << "@oj1" << endl;
+								//throw new ProtocolViolationException("List ng");
 						}
+						cout << "@ok5" << endl;
+						writeCode(conn, Protocol::ANS_CREATE_NG);
+						if(database.addNewsgroup(name)){
+							writeCode(conn, Protocol::ANS_ACK);
+						} else {
+							writeCode(conn, Protocol::ANS_NAK);
+							writeCode(conn, Protocol::ERR_NG_ALREADY_EXISTS);
+						}
+						writeCode(conn, Protocol::ANS_END);
+						
 						break;
 					}
 					case Protocol::COM_DELETE_NG:{
 						cout << "@COM_DELETE_NG" << endl;
 						size_t nGroupID = static_cast<size_t>(readInt(conn));
 						if(readCode(conn) != Protocol::COM_END){
-							cout << "Protocol violation on delete newsgroup" << endl;
-							break;
+							//throw new ProtocolViolationException("Delete ng");
+
 						}
-						writeCode(conn, Protocol::ANS_CREATE_NG);
+						writeCode(conn, Protocol::ANS_DELETE_NG);
 						if(database.removeNewsgroup(nGroupID)){
 							writeCode(conn, Protocol::ANS_ACK);
 						} else {
@@ -171,14 +188,16 @@ int main(int argc, char* argv[]){
 					}
 					case Protocol::COM_LIST_ART:{
 						cout << "@COM_LIST_ART" << endl;
+						// if(readCode(conn) != Protocol::PAR_STRING){
+						// 	cout << "Protocol violation on list articles" << endl;
+						// 	break;
+						// }
 						size_t nGroupID = static_cast<size_t>(readInt(conn));
 						if(readCode(conn) != Protocol::COM_END){
-							cout << "Protocol violation on list articles" << endl;
-							break;
+							//throw new ProtocolViolationException("List art");
 						}
 						try{
 							vector<Article> articles = database.getArticles(nGroupID);
-// ANS_LIST_ART [ANS_ACK num_p [num_p string_p]* | ANS_NAK ERR_NG_DOES_NOT_EXIST] ANS_END
 							writeCode(conn, Protocol::ANS_LIST_ART);
 							writeCode(conn, Protocol::ANS_ACK);
 							writeNumber(conn, articles.size());
@@ -201,89 +220,90 @@ int main(int argc, char* argv[]){
 						string title = readString(conn);
 						string text = readString(conn);
 						if(readCode(conn) != Protocol::COM_END){
-							cout << "Protocol violation on create article" <<endl;
+							//throw new ProtocolViolationException("Create art");
 						}
 						writeCode(conn, Protocol::ANS_CREATE_ART);
 						if(database.addArticle(newsgroupId, author, title, text)){
-								writeCode(conn, Protocol::ANS_ACK);
-							}else {
+							writeCode(conn, Protocol::ANS_ACK);
+						}else {
 
-								writeCode(conn, Protocol::ANS_NAK);
-								writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
-							}
-							writeCode(conn, Protocol::ANS_END);
-							break;
+							writeCode(conn, Protocol::ANS_NAK);
+							writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
 						}
-
-						case Protocol::COM_DELETE_ART:{
-							int newsgroupId = readInt(conn);
-							int articleId = readInt(conn);
-							if(readCode(conn) != Protocol::COM_END){
-								cout << "Protocol violation on delete article" <<endl;
-							}
-							writeCode(conn, Protocol::ANS_DELETE_ART);
-							try{
-								database.removeArticle(newsgroupId, articleId);
-								writeCode(conn, Protocol::ANS_ACK);
-							}catch(NoNewsgroupException e){
-								writeCode(conn, Protocol::ANS_NAK);
-								writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
-							}catch(NoArticleException e){
-								writeCode(conn, Protocol::ANS_NAK);
-								writeCode(conn,Protocol::ERR_ART_DOES_NOT_EXIST);
-							}
-							writeCode(conn, Protocol::ANS_END);
-							break;
-						}
-
-						case Protocol::COM_GET_ART:{
-							int newsgroupId = readInt(conn);
-							int articleId = readInt(conn);
-							if(readCode(conn) != Protocol::COM_END){
-								cout << "Protocol violation on get article" <<endl;
-							}
-							writeCode(conn, Protocol::ANS_GET_ART);
-							try{
-								Article article = database.getArticle(newsgroupId, articleId);
-								writeCode(conn, Protocol::ANS_ACK);
-								writeString(conn, article.getTitle());
-								writeString(conn, article.getAuthor());
-								writeString(conn, article.getText());
-							}catch(NoNewsgroupException e){
-								writeCode(conn, Protocol::ANS_NAK);
-								writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
-							}catch(NoArticleException e){
-								writeCode(conn, Protocol::ANS_NAK);
-								writeCode(conn,Protocol::ERR_ART_DOES_NOT_EXIST);
-							}
-							writeCode(conn, Protocol::ANS_END);
-							cout << "@7" << endl;
-							break;
-						}
-
-						case Protocol::COM_END:
-						cout << "Protocol violation" << endl;
-						break;
-
-						default:
-						cout << "Det gick till skogen";
+						writeCode(conn, Protocol::ANS_END);
 						break;
 					}
-					cout << "current database"<<endl;
-					vector<Newsgroup> groups = database.getNewsgroups();
-					cout << groups.size()<<endl;
-					for(auto it = groups.begin(); it < groups.end(); ++it){
-						cout << it->getID()<<endl;
-						cout << it->getName()<<endl;
+
+					case Protocol::COM_DELETE_ART:{
+						int newsgroupId = readInt(conn);
+						int articleId = readInt(conn);
+						if(readCode(conn) != Protocol::COM_END){
+							//throw new ProtocolViolationException("Delete art");
+						}
+						writeCode(conn, Protocol::ANS_DELETE_ART);
+						try{
+							database.removeArticle(newsgroupId, articleId);
+							writeCode(conn, Protocol::ANS_ACK);
+						}catch(NoNewsgroupException e){
+							writeCode(conn, Protocol::ANS_NAK);
+							writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
+						}catch(NoArticleException e){
+							writeCode(conn, Protocol::ANS_NAK);
+							writeCode(conn,Protocol::ERR_ART_DOES_NOT_EXIST);
+						}
+						writeCode(conn, Protocol::ANS_END);
+						break;
 					}
-				} catch (ConnectionClosedException&) {
-					server.deregisterConnection(conn);
-					cout << "Client closed connection" << endl;
+
+					case Protocol::COM_GET_ART:{
+						int newsgroupId = readInt(conn);
+						int articleId = readInt(conn);
+						if(readCode(conn) != Protocol::COM_END){
+							//throw new ProtocolViolationException("Get art");
+						}
+						writeCode(conn, Protocol::ANS_GET_ART);
+						try{
+							Article article = database.getArticle(newsgroupId, articleId);
+							writeCode(conn, Protocol::ANS_ACK);
+							writeString(conn, article.getTitle());
+							writeString(conn, article.getAuthor());
+							writeString(conn, article.getText());
+						}catch(NoNewsgroupException e){
+							writeCode(conn, Protocol::ANS_NAK);
+							writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
+						}catch(NoArticleException e){
+							writeCode(conn, Protocol::ANS_NAK);
+							writeCode(conn,Protocol::ERR_ART_DOES_NOT_EXIST);
+						}
+						writeCode(conn, Protocol::ANS_END);
+						break;
+					}
+
+					case Protocol::COM_END:
+					//throw new ProtocolViolationException("Unexpected end");
+					break;
+
+					default:
+					//throw new ProtocolViolationException("wtf");
+					break;
+				}	
+				cout << "current database"<<endl;
+				vector<Newsgroup> groups = database.getNewsgroups();
+				cout << groups.size()<<endl;
+				for(auto it = groups.begin(); it < groups.end(); ++it){
+					cout << it->getID()<<endl;
+					cout << it->getName()<<endl;
 				}
-			} else {
-				conn = make_shared<Connection>();
-				server.registerConnection(conn);
-				cout << "New client connects" << endl;
+			} catch (ProtocolViolationException& e) {
+				cout << e.what() << endl;
+			} catch (ConnectionClosedException&) {
+				server.deregisterConnection(conn);
+				cout << "Client closed connection" << endl;
 			}
+		} else {
+			conn = make_shared<Connection>();
+			server.registerConnection(conn);
+			cout << "New client connects" << endl;
 		}
 	}
+}
