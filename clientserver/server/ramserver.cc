@@ -141,6 +141,7 @@ int main(int argc, char* argv[]){
 								writeCode(conn, Protocol::ANS_ACK);
 							} else {
 								writeCode(conn, Protocol::ANS_NAK);
+								writeCode(conn, Protocol::ERR_NG_ALREADY_EXISTS);
 							}
 							writeCode(conn, Protocol::ANS_END);
 						} else {
