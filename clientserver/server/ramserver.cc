@@ -30,7 +30,7 @@ unsigned char readCode(const shared_ptr<Connection>& conn) {
 */
 int readInt(const shared_ptr<Connection>& conn) {
 	if(readCode(conn) != Protocol::PAR_NUM){
-		// throw new ProtocolViolationException("Read Int");
+		throw ProtocolViolationException("Read Int");
 	}
 	unsigned char byte1 = conn->read();
 	unsigned char byte2 = conn->read();
@@ -43,11 +43,9 @@ int readInt(const shared_ptr<Connection>& conn) {
 * Read an integer from a client.
 */
 string readString(const shared_ptr<Connection>& conn) {
-	cout << "@oj3" << endl;
 	if(readCode(conn) != Protocol::PAR_STRING){
-		// throw new ProtocolViolationException("Read String");
+		throw ProtocolViolationException("Read String");
 	}
-	cout << "@oj4" << endl;
 	string s;
 
 	unsigned char byte1 = conn->read();
@@ -132,7 +130,7 @@ int main(int argc, char* argv[]){
 					case Protocol::COM_LIST_NG:{
 						cout << "@COM_LIST_NG" << endl;
 						if(readCode(conn) != Protocol::COM_END){
-							//throw new ProtocolViolationException("Create ng");
+							throw ProtocolViolationException("Create ng");
 						}
 						writeCode(conn, Protocol::ANS_LIST_NG);
 						vector<Newsgroup> groups = database.getNewsgroups();
@@ -150,7 +148,7 @@ int main(int argc, char* argv[]){
 						cout << "@COM_CREATE_NG" << endl;
 						string name = readString(conn);
 						if(readCode(conn) != Protocol::COM_END){
-								//throw new ProtocolViolationException("List ng");
+								throw ProtocolViolationException("List ng");
 						}
 						writeCode(conn, Protocol::ANS_CREATE_NG);
 						if(database.addNewsgroup(name)){
@@ -167,7 +165,7 @@ int main(int argc, char* argv[]){
 						cout << "@COM_DELETE_NG" << endl;
 						size_t nGroupID = static_cast<size_t>(readInt(conn));
 						if(readCode(conn) != Protocol::COM_END){
-							//throw new ProtocolViolationException("Delete ng");
+							throw ProtocolViolationException("Delete ng");
 						}
 						writeCode(conn, Protocol::ANS_DELETE_NG);
 						if(database.removeNewsgroup(nGroupID)){
@@ -183,7 +181,7 @@ int main(int argc, char* argv[]){
 						cout << "@COM_LIST_ART" << endl;
 						size_t nGroupID = static_cast<size_t>(readInt(conn));
 						if(readCode(conn) != Protocol::COM_END){
-							//throw new ProtocolViolationException("List art");
+							throw ProtocolViolationException("List art");
 						}
 						try{
 							vector<Article> articles = database.getArticles(nGroupID);
@@ -209,7 +207,7 @@ int main(int argc, char* argv[]){
 						string title = readString(conn);
 						string text = readString(conn);
 						if(readCode(conn) != Protocol::COM_END){
-							//throw new ProtocolViolationException("Create art");
+							throw ProtocolViolationException("Create art");
 						}
 						writeCode(conn, Protocol::ANS_CREATE_ART);
 						if(database.addArticle(newsgroupId, author, title, text)){
@@ -227,7 +225,7 @@ int main(int argc, char* argv[]){
 						int newsgroupId = readInt(conn);
 						int articleId = readInt(conn);
 						if(readCode(conn) != Protocol::COM_END){
-							//throw new ProtocolViolationException("Delete art");
+							throw ProtocolViolationException("Delete art");
 						}
 						writeCode(conn, Protocol::ANS_DELETE_ART);
 						try{
@@ -248,7 +246,7 @@ int main(int argc, char* argv[]){
 						int newsgroupId = readInt(conn);
 						int articleId = readInt(conn);
 						if(readCode(conn) != Protocol::COM_END){
-							//throw new ProtocolViolationException("Get art");
+							throw ProtocolViolationException("Get art");
 						}
 						writeCode(conn, Protocol::ANS_GET_ART);
 						try{
@@ -269,11 +267,11 @@ int main(int argc, char* argv[]){
 					}
 
 					case Protocol::COM_END:
-					//throw new ProtocolViolationException("Unexpected end");
+					throw ProtocolViolationException("Unexpected end");
 					break;
 
 					default:
-					//throw new ProtocolViolationException("wtf");
+					throw ProtocolViolationException("wtf");
 					break;
 				}	
 				cout << "current database"<<endl;
