@@ -7,13 +7,10 @@ ClientMessageHandler::ClientMessageHandler(Connection& conn) : conn(conn){}
 
 
 unsigned char ClientMessageHandler::readCode() {
-  unsigned char code = conn.read();
-  std::cout << "readCode " << static_cast<int>(code) << std::endl;
-  return code;
+  return conn.read();
 }
 
 void ClientMessageHandler::writeCode(unsigned char value) {
-  std::cout << "writeCode with parameter: " << (value&0xFF) << std::endl;
   conn.write(value);
 }
 
@@ -82,6 +79,11 @@ void ClientMessageHandler::listNewsgroups(){
   int n = readNumber();
   if (n < 0){
     return;
+  }
+  if (n==0){
+    std::cout << "There are no newsgroups" << std::endl;
+  }else{
+    std::cout << "Newsgroups:" << std::endl;
   }
   for (int i = 0; i != n; ++i){
     int id = readNumber();
@@ -168,6 +170,11 @@ void ClientMessageHandler::listArticles(int groupID){
     if (n < 0){
       return;
     }
+    if (n==0){
+      std::cout << "There are no articles" << std::endl;
+    }else{
+      std::cout << "Articles:" << std::endl;
+    }
     for (int i = 0; i != n; ++i){
       int id = readNumber();
       if (id < 0){
@@ -196,7 +203,30 @@ void ClientMessageHandler::listArticles(int groupID){
 }
 
 void ClientMessageHandler::createArticle(int groupID, std::string title, std::string author, std::string text){
+  writeCode(Protocol::COM_CREATE_ART);
+  writeNumber(groupID);
+  writeString(title);
+  writeString(author);
+  writeString(text);
+  writeCode(Protocol::COM_END);
 
+  if (readCode() != Protocol::ANS_CREATE_ART){
+    std::cerr << "Protocol does not match - ANS_CREATE_ART" << std::endl;
+    return;
+  }
+  unsigned char code = readCode();
+  if (code == Protocol::ANS_ACK){
+    std::cout << "Article created" << std::endl;
+  }else if (code == Protocol::ANS_NAK){
+    if (readCode() != Protocol::ERR_NG_DOES_NOT_EXIST){
+      std::cerr << "Protocol does not match - ERR_NG_DOES_NOT_EXIST" << std::endl;
+      return;
+    }
+    std::cout << "Newsgroup does not exist" << std::endl;
+  }else{
+    std::cerr << "Protocol does not match - ANS_ACK|ANS_NAK" << std::endl;
+    return;
+  }
   if (readCode() != Protocol::ANS_END){
     std::cerr << "Protocol does not match - ANS_END" << std::endl;
     return;
@@ -204,6 +234,32 @@ void ClientMessageHandler::createArticle(int groupID, std::string title, std::st
 }
 
 void ClientMessageHandler::deleteArticle(int groupID, int articleID){
+  writeCode(Protocol::COM_DELETE_ART);
+  writeNumber(groupID);
+  writeNumber(articleID);
+  writeCode(Protocol::COM_END);
+
+  if (readCode() != Protocol::ANS_DELETE_ART){
+    std::cerr << "Protocol does not match - ANS_DELETE_ART" << std::endl;
+    return;
+  }
+  unsigned char code = readCode();
+  if (code == Protocol::ANS_ACK){
+    std::cout << "Article deleted" << std::endl;
+  }else if (code == Protocol::ANS_NAK){
+    unsigned char answer = readCode();
+    if (answer == Protocol::ERR_NG_DOES_NOT_EXIST){
+      std::cout << "Newgroup does not exist" << std::endl;
+    }else if (answer == Protocol::ERR_ART_DOES_NOT_EXIST){
+      std::cout << "Article does not exist" << std::endl;
+    }else{
+      std::cerr << "Protocol does not match - ERR_NG_DOES_NOT_EXIST|ERR_ART_DOES_NOT_EXIST" << std::endl;
+      return;
+    }
+  }else{
+    std::cerr << "Protocol does not match - ANS_ACK|ANS_NAK" << std::endl;
+    return;
+  }
 
   if (readCode() != Protocol::ANS_END){
     std::cerr << "Protocol does not match - ANS_END" << std::endl;
@@ -212,6 +268,35 @@ void ClientMessageHandler::deleteArticle(int groupID, int articleID){
 }
 
 void ClientMessageHandler::getArticle(int groupID, int articleID){
+  writeCode(Protocol::COM_GET_ART);
+  writeNumber(groupID);
+  writeNumber(articleID);
+  writeCode(Protocol::COM_END);
+
+  if (readCode() != Protocol::ANS_GET_ART){
+    std::cerr << "Protocol does not match - ANS_DELETE_ART" << std::endl;
+    return;
+  }
+  unsigned char code = readCode();
+  if (code == Protocol::ANS_ACK){
+    std::string title = readString();
+    std::string author = readString();
+    std::string text = readString();
+    std::cout << title << std::endl << author << std::endl << std::endl << text << std::endl;
+  }else if (code == Protocol::ANS_NAK){
+    unsigned char answer = readCode();
+    if (answer == Protocol::ERR_NG_DOES_NOT_EXIST){
+      std::cout << "Newgroup does not exist" << std::endl;
+    }else if (answer == Protocol::ERR_ART_DOES_NOT_EXIST){
+      std::cout << "Article does not exist" << std::endl;
+    }else{
+      std::cerr << "Protocol does not match - ERR_NG_DOES_NOT_EXIST|ERR_ART_DOES_NOT_EXIST" << std::endl;
+      return;
+    }
+  }else{
+    std::cerr << "Protocol does not match - ANS_ACK|ANS_NAK" << std::endl;
+    return;
+  }
 
   if (readCode() != Protocol::ANS_END){
     std::cerr << "Protocol does not match - ANS_END" << std::endl;

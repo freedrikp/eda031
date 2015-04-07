@@ -56,19 +56,44 @@ void interact(ClientMessageHandler& client){
         break;
       }
       case CREATE_ART: {
-
+        std::cout << "For which newsgroup do you wish to create the article?" << std::endl;
+        int groupID;
+        std::cin >> groupID;
+        std::cout << "What should the title be?" << std::endl;
+        std::string title;
+        std::cin.ignore();
+        std::getline(std::cin,title);
+        std::cout << "Who is the author?" << std::endl;
+        std::string author;
+        std::getline(std::cin,author);
+        std::cout << "What is the text of the article?" << std::endl;
+        std::string text;
+        std::getline(std::cin,text);
+        client.createArticle(groupID,title,author,text);
         break;
       }
       case DELETE_ART: {
-
+        std::cout << "In which newsgroup is the article located?" << std::endl;
+        int groupID;
+        std::cin >> groupID;
+        std::cout << "Which article is it?" << std::endl;
+        int articleID;
+        std::cin >> articleID;
+        client.deleteArticle(groupID,articleID);
         break;
       }
       case GET_ART: {
-
+        std::cout << "In which newsgroup is the article located?" << std::endl;
+        int groupID;
+        std::cin >> groupID;
+        std::cout << "Which article is it?" << std::endl;
+        int articleID;
+        std::cin >> articleID;
+        client.getArticle(groupID,articleID);
         break;
       }
       default:
-        std::cout << "Wrong selection" << std::endl;
+      std::cout << "Wrong selection" << std::endl;
 
 
 
@@ -88,24 +113,24 @@ void interact(ClientMessageHandler& client){
 
 
 int main(int argc, char* argv[]) {
-	if (argc != 3) {
-		std::cerr << "Usage: myclient host-name port-number" << std::endl;
-		exit(1);
-	}
+  if (argc != 3) {
+    std::cerr << "Usage: myclient host-name port-number" << std::endl;
+    exit(1);
+  }
 
-	int port = -1;
-	try {
-		port = std::stoi(argv[2]);
-	} catch (std::exception& e) {
-		std::cerr << "Wrong port number. " << e.what() << std::endl;
-		exit(1);
-	}
+  int port = -1;
+  try {
+    port = std::stoi(argv[2]);
+  } catch (std::exception& e) {
+    std::cerr << "Wrong port number. " << e.what() << std::endl;
+    exit(1);
+  }
 
-	Connection conn(argv[1], port);
-	if (!conn.isConnected()) {
-		std::cerr << "Connection attempt failed" << std::endl;
-		exit(1);
-	}
+  Connection conn(argv[1], port);
+  if (!conn.isConnected()) {
+    std::cerr << "Connection attempt failed" << std::endl;
+    exit(1);
+  }
 
   ClientMessageHandler client(conn);
   interact(client);
