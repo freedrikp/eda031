@@ -18,6 +18,8 @@ private:
 
   Selection queryUser();
 
+  void listNewsgroups();
+  void createNewsgroup(std::string& name);
 
 
 
