@@ -12,8 +12,8 @@ public:
   virtual std::vector<Article> getArticles(size_t nGroupID) = 0;
   virtual Article getArticle(size_t nGroupID, size_t articleID) = 0;
   virtual bool addNewsgroup(std::string name) = 0;
-  virtual void removeNewsgroup(size_t nGroupID) = 0;
-  virtual void addArticle(size_t nGroupID, std::string title, std::string author, std::string text) = 0;
+  virtual bool removeNewsgroup(size_t nGroupID) = 0;
+  virtual bool addArticle(size_t nGroupID, std::string title, std::string author, std::string text) = 0;
   virtual void removeArticle(size_t nGroupID, size_t articleID) = 0;
 };
 #endif

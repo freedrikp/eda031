@@ -1,7 +1,6 @@
 #include <string>
 #include "memoryDatabase.h"
 #include <iostream>
-#include "newsgroupexistsexception.h"
 #include "nonewsgroupexception.h"
 #include "noarticleexception.h"
 
@@ -13,12 +12,8 @@ void printStuff(MemoryDatabase memdb){
 
       list = memdb.getArticles(elem.getID());
 
-    }catch (NewsgroupExistsException e1){
-      std::cout << "Newsgroup already exists" << std::endl;
-    }catch (NoNewsgroupException e2){
+    }catch (NoNewsgroupException e){
       std::cout << "Newsgroup does not exist" << std::endl;
-    }catch (NoArticleException e3){
-      std::cout << "Article does not exist" << std::endl;
     }
 
     //std::cout << "loop, size of list: " << list.size() << std::endl;
@@ -36,51 +31,19 @@ int main(){
   MemoryDatabase memdb;
   std::string start = "a";
   for (char i = 'b'; i != 'b' + 10; ++i){
-    std::cout << std::boolalpha << "Adding newsgroup: ";
-    try {
-      memdb.addNewsgroup(start+i);
-      std::cout << "Worked" << std::endl;
-    }catch (NewsgroupExistsException e1){
-      std::cout << "Newsgroup already exists" << std::endl;
-    }catch (NoNewsgroupException e2){
-      std::cout << "Newsgroup does not exist" << std::endl;
-    }catch (NoArticleException e3){
-      std::cout << "Article does not exist" << std::endl;
-    }
+    std::cout << std::boolalpha << "Adding newsgroup: " << memdb.addNewsgroup(start+i) << std::endl;
+
   }
   std::cout << "Newsgroups:" << std::endl;
   for (auto elem : memdb.getNewsgroups()){
       std::cout << elem.getID() << " " << elem.getName() << std::endl;
   }
 
-  std::cout << "Trying to add existing newsgroup: ";
-
-  try {
-    memdb.addNewsgroup("ab");
-    std::cout << "Worked" << std::endl;
-
-  }catch (NewsgroupExistsException e1){
-    std::cout << "Newsgroup already exists" << std::endl;
-  }catch (NoNewsgroupException e2){
-    std::cout << "Newsgroup does not exist" << std::endl;
-  }catch (NoArticleException e3){
-    std::cout << "Article does not exist" << std::endl;
-  }
+  std::cout << "Trying to add existing newsgroup: " << memdb.addNewsgroup("ab") << std::endl;
 
   for (int i = 0; i != 10; ++i){
-    std::cout << "Adding article to group " << i+1 << " : ";
+    std::cout << "Adding article to group " << i+1 << " : " << memdb.addArticle(i+1,start, "fredrik", "baaaaaaaast") << std::endl;
 
-    try {
-      memdb.addArticle(i+1,start, "fredrik", "baaaaaaaast");
-      std::cout << "Worked" << std::endl;
-
-    }catch (NewsgroupExistsException e1){
-      std::cout << "Newsgroup already exists" << std::endl;
-    }catch (NoNewsgroupException e2){
-      std::cout << "Newsgroup does not exist" << std::endl;
-    }catch (NoArticleException e3){
-      std::cout << "Article does not exist" << std::endl;
-    }
   }
 
 
@@ -88,19 +51,7 @@ int main(){
 
 
 
-    std::cout << "Removing newsgroup 5: ";
-
-    try {
-      memdb.removeNewsgroup(5);
-      std::cout << "Worked" << std::endl;
-
-    }catch (NewsgroupExistsException e1){
-      std::cout << "Newsgroup already exists" << std::endl;
-    }catch (NoNewsgroupException e2){
-      std::cout << "Newsgroup does not exist" << std::endl;
-    }catch (NoArticleException e3){
-      std::cout << "Article does not exist" << std::endl;
-    }
+    std::cout << "Removing newsgroup 5: " << memdb.removeNewsgroup(5) << std::endl;;
 
     printStuff(memdb);
 
@@ -110,8 +61,6 @@ int main(){
       memdb.removeArticle(3,1);
       std::cout << "Worked" << std::endl;
 
-    }catch (NewsgroupExistsException e1){
-      std::cout << "Newsgroup already exists" << std::endl;
     }catch (NoNewsgroupException e2){
       std::cout << "Newsgroup does not exist" << std::endl;
     }catch (NoArticleException e3){
@@ -120,19 +69,8 @@ int main(){
 
     printStuff(memdb);
 
-    std::cout << "Removing nonexistent newsgroup: ";
+    std::cout << "Removing nonexistent newsgroup: "<< memdb.removeNewsgroup(100) << std::endl;
 
-    try {
-      memdb.removeNewsgroup(100);
-      std::cout << "Worked" << std::endl;
-
-    }catch (NewsgroupExistsException e1){
-      std::cout << "Newsgroup already exists" << std::endl;
-    }catch (NoNewsgroupException e2){
-      std::cout << "Newsgroup does not exist" << std::endl;
-    }catch (NoArticleException e3){
-      std::cout << "Article does not exist" << std::endl;
-    }
 
     std::cout << "Removing nonexistent article from nonexistent group: ";
 
@@ -140,8 +78,6 @@ int main(){
       memdb.removeArticle(200,33);
       std::cout << "Worked" << std::endl;
 
-    }catch (NewsgroupExistsException e1){
-      std::cout << "Newsgroup already exists" << std::endl;
     }catch (NoNewsgroupException e2){
       std::cout << "Newsgroup does not exist" << std::endl;
     }catch (NoArticleException e3){
@@ -154,8 +90,6 @@ int main(){
       memdb.removeArticle(8,33);
       std::cout << "Worked" << std::endl;
 
-    }catch (NewsgroupExistsException e1){
-      std::cout << "Newsgroup already exists" << std::endl;
     }catch (NoNewsgroupException e2){
       std::cout << "Newsgroup does not exist" << std::endl;
     }catch (NoArticleException e3){
@@ -168,27 +102,13 @@ int main(){
     Article elem1 = memdb.getArticle(7,1);
     std::cout << "article: "<<elem1.getID() << " " << elem1.getTitle() << " " << elem1.getAuthor() << " " << elem1.getText() << std::endl;
 
-    }catch (NewsgroupExistsException e1){
-      std::cout << "Newsgroup already exists" << std::endl;
     }catch (NoNewsgroupException e2){
       std::cout << "Newsgroup does not exist" << std::endl;
     }catch (NoArticleException e3){
       std::cout << "Article does not exist" << std::endl;
     }
 
-    std::cout << "Adding article to nonexistent group: ";
-
-    try {
-      memdb.addArticle(30,start, "fredrik", "baaaaaaaast");
-      std::cout << "Worked" << std::endl;
-
-    }catch (NewsgroupExistsException e1){
-      std::cout << "Newsgroup already exists" << std::endl;
-    }catch (NoNewsgroupException e2){
-      std::cout << "Newsgroup does not exist" << std::endl;
-    }catch (NoArticleException e3){
-      std::cout << "Article does not exist" << std::endl;
-    }
+    std::cout << "Adding article to nonexistent group: " << memdb.addArticle(30,start, "fredrik", "baaaaaaaast") << std::endl;
 
     std::cout << "Getting article from nonexistent group: ";
 
@@ -196,8 +116,6 @@ int main(){
     Article elem1 = memdb.getArticle(40,1);
     std::cout << "article: "<<elem1.getID() << " " << elem1.getTitle() << " " << elem1.getAuthor() << " " << elem1.getText() << std::endl;
 
-    }catch (NewsgroupExistsException e1){
-      std::cout << "Newsgroup already exists" << std::endl;
     }catch (NoNewsgroupException e2){
       std::cout << "Newsgroup does not exist" << std::endl;
     }catch (NoArticleException e3){
@@ -210,8 +128,6 @@ int main(){
     Article elem1 = memdb.getArticle(2,10);
     std::cout << "article: "<<elem1.getID() << " " << elem1.getTitle() << " " << elem1.getAuthor() << " " << elem1.getText() << std::endl;
 
-    }catch (NewsgroupExistsException e1){
-      std::cout << "Newsgroup already exists" << std::endl;
     }catch (NoNewsgroupException e2){
       std::cout << "Newsgroup does not exist" << std::endl;
     }catch (NoArticleException e3){
@@ -222,12 +138,8 @@ int main(){
     try {
 
       memdb.getArticles(70);
-std::cout << "Worked" << std::endl;
-    }catch (NewsgroupExistsException e1){
-      std::cout << "Newsgroup already exists" << std::endl;
+      std::cout << "Worked" << std::endl;
     }catch (NoNewsgroupException e2){
       std::cout << "Newsgroup does not exist" << std::endl;
-    }catch (NoArticleException e3){
-      std::cout << "Article does not exist" << std::endl;
     }
 }

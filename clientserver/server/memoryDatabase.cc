@@ -1,7 +1,6 @@
 #include "memoryDatabase.h"
 #include <algorithm>
 #include <utility>
-#include "newsgroupexistsexception.h"
 #include "nonewsgroupexception.h"
 #include "noarticleexception.h"
 
@@ -53,17 +52,18 @@ bool MemoryDatabase::addNewsgroup(std::string name){
   return true;
 }
 
-void MemoryDatabase::removeNewsgroup(size_t nGroupID){
+bool MemoryDatabase::removeNewsgroup(size_t nGroupID){
   auto it = newsGroups.find(nGroupID);
   if (it != newsGroups.end()){
     newsGroups.erase(it);
     articles[nGroupID].clear();
+    return true;
   }else{
-    throw NoNewsgroupException();
+    return false;
   }
 }
 
-void MemoryDatabase::addArticle(size_t nGroupID, std::string title, std::string author, std::string text){
+bool MemoryDatabase::addArticle(size_t nGroupID, std::string title, std::string author, std::string text){
    if (newsGroups.find(nGroupID) != newsGroups.end()){
     //  if (find_if(articles[nGroupID].begin(), articles[nGroupID].end(),[&title](std::unordered_map<size_t,Article>::value_type& elem){return title == elem.second.getTitle();}) != articles[nGroupID].end()){
     //      return false;
@@ -72,10 +72,10 @@ void MemoryDatabase::addArticle(size_t nGroupID, std::string title, std::string 
      Article art(title, author, text, articleCounters[nGroupID]);
      //articles[articleCounters[nGroupID]] = art;
      articles[nGroupID].insert(std::pair<size_t,Article>(articleCounters[nGroupID],art));
+     return true;
    }else{
-     throw NoNewsgroupException();
+     return false;
    }
-
  }
 
 void MemoryDatabase::removeArticle(size_t nGroupID, size_t articleID){
