@@ -9,7 +9,6 @@
 #include "nonewsgroupexception.h"
 #include "noarticleexception.h"
 
-
 #include <memory>
 #include <iostream>
 #include <string>
@@ -162,10 +161,9 @@ int main(int argc, char* argv[]){
 							break;
 						}
 						writeCode(conn, Protocol::ANS_CREATE_NG);
-						try{
-							database.removeNewsgroup(ngID);
+						if(database.removeNewsgroup(ngID)){
 							writeCode(conn, Protocol::ANS_ACK);
-						} catch(NoNewsgroupException nne){
+						} else {
 							writeCode(conn, Protocol::ANS_NAK);
 							writeCode(conn, Protocol::ERR_NG_DOES_NOT_EXIST);
 						}
@@ -174,6 +172,7 @@ int main(int argc, char* argv[]){
 					}
 					case Protocol::COM_LIST_ART:{
 						cout << "@COM_LIST_ART" << endl;
+
 						break;
 					}
 					case Protocol::COM_CREATE_ART:
