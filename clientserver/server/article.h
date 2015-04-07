@@ -10,6 +10,7 @@ public:
   std::string getTitle() const;
   std::string getAuthor() const;
   std::string getText() const;
+  ~Article() = default;
 private:
   std::string title;
   std::string author;

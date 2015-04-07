@@ -31,3 +31,6 @@
 # Whatever
 cppproject.pdf
 *.DS_Store
+*.pdf
+*.aux
+*.log

@@ -6,6 +6,9 @@
 #include "memoryDatabase.h"
 #include "newsgroup.h"
 #include "article.h"
+#include "nonewsgroupexception.h"
+#include "noarticleexception.h"
+
 
 #include <memory>
 #include <iostream>
@@ -112,7 +115,8 @@ int main(int argc, char* argv[]){
 				cout << "kase: " << kase << endl;
 				switch(kase){
 					case Protocol::COM_LIST_NG:{
-						if(!readCode(conn) == Protocol::COM_END){
+						cout << "@COM_LIST_NG" << endl;
+						if(readCode(conn) != Protocol::COM_END){
 							cout << "Protocol violation on create newsgroup" <<endl;
 							break;
 						}
@@ -129,12 +133,12 @@ int main(int argc, char* argv[]){
 						break;
 					}
 					case Protocol::COM_CREATE_NG:{
-						cout << "create" << endl;
+						cout << "@COM_CREATE_NG" << endl;
 						if(readCode(conn) == Protocol::PAR_STRING){
 							int n = readInt(conn);
 							string name = readString(conn, n);
 							cout << "n: " << n << ", name: " << name << endl;
-							if(!readCode(conn) == Protocol::COM_END){
+							if(readCode(conn) != Protocol::COM_END){
 								cout << "Protocol violation on list newsgroups" <<endl;
 							}
 							writeCode(conn, Protocol::ANS_CREATE_NG);
@@ -142,6 +146,7 @@ int main(int argc, char* argv[]){
 								writeCode(conn, Protocol::ANS_ACK);
 							} else {
 								writeCode(conn, Protocol::ANS_NAK);
+								writeCode(conn, Protocol::ERR_NG_ALREADY_EXISTS);
 							}
 							writeCode(conn, Protocol::ANS_END);
 						} else {
@@ -149,14 +154,28 @@ int main(int argc, char* argv[]){
 						}
 						break;
 					}
-					case Protocol::COM_DELETE_NG:
-					cout << "@3" << endl;
-					break;
-
-					case Protocol::COM_LIST_ART:
-					cout << "@4" << endl;
-					break;
-
+					case Protocol::COM_DELETE_NG:{
+						cout << "@COM_DELETE_NG" << endl;
+						size_t ngID = static_cast<size_t>(readInt(conn));
+						if(readCode(conn) != Protocol::COM_END){
+							cout << "Protocol violation on delete newsgroup" <<endl;
+							break;
+						}
+						writeCode(conn, Protocol::ANS_CREATE_NG);
+						try{
+							database.removeNewsgroup(ngID);
+							writeCode(conn, Protocol::ANS_ACK);
+						} catch(NoNewsgroupException nne){
+							writeCode(conn, Protocol::ANS_NAK);
+							writeCode(conn, Protocol::ERR_NG_DOES_NOT_EXIST);
+						}
+						writeCode(conn, Protocol::ANS_END);
+						break;
+					}
+					case Protocol::COM_LIST_ART:{
+						cout << "@COM_LIST_ART" << endl;
+						break;
+					}
 					case Protocol::COM_CREATE_ART:
 					cout << "@5" << endl;
 					break;
