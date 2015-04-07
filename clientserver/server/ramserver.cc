@@ -38,8 +38,9 @@ int readInt(const shared_ptr<Connection>& conn) {
 /*
 * Read an integer from a client.
 */
-string readString(const shared_ptr<Connection>& conn, int n) {
+string readString(const shared_ptr<Connection>& conn) {
 	string s;
+	int n = readInt(conn);
 	for(int i = 0; i < n; ++i){
 		s += readCode(conn);
 	}
@@ -134,9 +135,7 @@ int main(int argc, char* argv[]){
 					case Protocol::COM_CREATE_NG:{
 						cout << "@COM_CREATE_NG" << endl;
 						if(readCode(conn) == Protocol::PAR_STRING){
-							int n = readInt(conn);
-							string name = readString(conn, n);
-							cout << "n: " << n << ", name: " << name << endl;
+							string name = readString(conn);
 							if(readCode(conn) != Protocol::COM_END){
 								cout << "Protocol violation on list newsgroups" << endl;
 							}
@@ -186,80 +185,95 @@ int main(int argc, char* argv[]){
 						writeCode(conn, Protocol::ANS_END);
 						break;
 					}
-					case Protocol::COM_CREATE_ART:
-					cout << "@5" << endl;
-					break;
-
-					case Protocol::COM_DELETE_ART:{
-						cout << "@7" << endl;
+					case Protocol::COM_CREATE_ART:{
 						int newsgroupId = readInt(conn);
-						int articleId = readInt(conn);
-						writeCode(conn, Protocol::ANS_DEL_ART);
+						string author = readString(conn);
+						string title = readString(conn);
+						string text = readString(conn);
 						if(readCode(conn) != Protocol::COM_END){
-							cout << "Protocol violation on delete article" <<endl;
+							cout << "Protocol violation on create article" <<endl;
 						}
-						try{
-							database.deleteArticle(newsgroupId, articleId);
-							writeCode(conn, Protocol::ANS_ACK);
-						}catch(NoNewsgroupException e){
-							writeCode(conn, Protocol::ANS_NAK);
-							writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
-						}catch(NoArticleException e){
-							writeCode(conn, Protocol::ANS_NAK);
-							writeCode(conn,Protocol::ERR_ART_DOES_NOT_EXIST);
+						writeCode(conn, Protocol::ANS_CREATE_ART);
+						if(database.addArticle(newsgroupId, author, title, text)){
+								writeCode(conn, Protocol::ANS_ACK);
+							}else {
+
+								writeCode(conn, Protocol::ANS_NAK);
+								writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
+							}
+							writeCode(conn, Protocol::ANS_END);
+							break;
 						}
-						writeCode(conn, Protocol::ANS_END);
+
+						case Protocol::COM_DELETE_ART:{
+							int newsgroupId = readInt(conn);
+							int articleId = readInt(conn);
+							if(readCode(conn) != Protocol::COM_END){
+								cout << "Protocol violation on delete article" <<endl;
+							}
+							writeCode(conn, Protocol::ANS_DELETE_ART);
+							try{
+								database.removeArticle(newsgroupId, articleId);
+								writeCode(conn, Protocol::ANS_ACK);
+							}catch(NoNewsgroupException e){
+								writeCode(conn, Protocol::ANS_NAK);
+								writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
+							}catch(NoArticleException e){
+								writeCode(conn, Protocol::ANS_NAK);
+								writeCode(conn,Protocol::ERR_ART_DOES_NOT_EXIST);
+							}
+							writeCode(conn, Protocol::ANS_END);
+							break;
+						}
+
+						case Protocol::COM_GET_ART:{
+							int newsgroupId = readInt(conn);
+							int articleId = readInt(conn);
+							if(readCode(conn) != Protocol::COM_END){
+								cout << "Protocol violation on get article" <<endl;
+							}
+							writeCode(conn, Protocol::ANS_GET_ART);
+							try{
+								Article article = database.getArticle(newsgroupId, articleId);
+								writeCode(conn, Protocol::ANS_ACK);
+								writeString(conn, article.getTitle());
+								writeString(conn, article.getAuthor());
+								writeString(conn, article.getText());
+							}catch(NoNewsgroupException e){
+								writeCode(conn, Protocol::ANS_NAK);
+								writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
+							}catch(NoArticleException e){
+								writeCode(conn, Protocol::ANS_NAK);
+								writeCode(conn,Protocol::ERR_ART_DOES_NOT_EXIST);
+							}
+							writeCode(conn, Protocol::ANS_END);
+							cout << "@7" << endl;
+							break;
+						}
+
+						case Protocol::COM_END:
+						cout << "Protocol violation" << endl;
+						break;
+
+						default:
+						cout << "Det gick till skogen";
 						break;
 					}
-
-					case Protocol::COM_GET_ART:{
-						int newsgroupId = readInt(conn);
-						int articleId = readInt(conn);
-						if(readCode(conn) != Protocol::COM_END){
-							cout << "Protocol violation on get article" <<endl;
-						}
-						writeCode(conn, Protocol::ANS_GET_ART);
-						try{
-							Article article = database.getArticle(newsgroupId, articleId);
-							writeCode(conn, Protocol::ANS_ACK);
-							writeString(conn, article.getTitle());
-							writeString(conn, article.getAuthor());
-							writeString(conn, article.getText());
-						}catch(NoNewsgroupException e){
-							writeCode(conn, Protocol::ANS_NAK);
-							writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
-						}catch(NoArticleException e){
-							writeCode(conn, Protocol::ANS_NAK);
-							writeCode(conn,Protocol::ERR_ART_DOES_NOT_EXIST);
-						}
-						writeCode(conn, Protocol::ANS_END);
-						cout << "@7" << endl;
-						break;
+					cout << "current database"<<endl;
+					vector<Newsgroup> groups = database.getNewsgroups();
+					cout << groups.size()<<endl;
+					for(auto it = groups.begin(); it < groups.end(); ++it){
+						cout << it->getID()<<endl;
+						cout << it->getName()<<endl;
 					}
-
-					case Protocol::COM_END:
-					cout << "Protocol violation" << endl;
-					break;
-
-					default:
-					cout << "Det gick till skogen";
-					break;
+				} catch (ConnectionClosedException&) {
+					server.deregisterConnection(conn);
+					cout << "Client closed connection" << endl;
 				}
-				cout << "current database"<<endl;
-				vector<Newsgroup> groups = database.getNewsgroups();
-				cout << groups.size()<<endl;
-				for(auto it = groups.begin(); it < groups.end(); ++it){
-					cout << it->getID()<<endl;
-					cout << it->getName()<<endl;
-				}
-			} catch (ConnectionClosedException&) {
-				server.deregisterConnection(conn);
-				cout << "Client closed connection" << endl;
+			} else {
+				conn = make_shared<Connection>();
+				server.registerConnection(conn);
+				cout << "New client connects" << endl;
 			}
-		} else {
-			conn = make_shared<Connection>();
-			server.registerConnection(conn);
-			cout << "New client connects" << endl;
 		}
 	}
-}
