@@ -99,6 +99,7 @@ void writeNumber(const shared_ptr<Connection>& conn, int value) {
 
 
 int main(int argc, char* argv[]){
+	cout << "Starting server... " << endl;
 	if (argc != 2) {
 		cerr << "Usage: myserver port-number" << endl;
 		exit(1);
@@ -119,8 +120,9 @@ int main(int argc, char* argv[]){
 	}
 
 	MemoryDatabase database;
-
+	cout << "Now listening on port " << argv[1] << "." << endl;
 	while (true) {
+
 		auto conn = server.waitForActivity();
 		if (conn != nullptr) {
 			try {
