@@ -3,7 +3,12 @@
 #include <iostream>
 #include "protocol.h"
 
-ClientMessageHandler::ClientMessageHandler(Connection& conn) : conn(conn){}
+ClientMessageHandler::ClientMessageHandler(char* host, int port) : conn(host, port){
+  if (!conn.isConnected()) {
+    std::cerr << "Connection attempt failed" << std::endl;
+    exit(1);
+  }
+}
 
 
 unsigned char ClientMessageHandler::readCode() {
@@ -91,9 +96,6 @@ void ClientMessageHandler::listNewsgroups(){
       return;
     }
     std::string name = readString();
-    if (name.empty()){
-      return;
-    }
     std::cout << id << " " << name << std::endl;
   }
   if (readCode() != Protocol::ANS_END){
@@ -181,9 +183,6 @@ void ClientMessageHandler::listArticles(int groupID){
         return;
       }
       std::string title = readString();
-      if (title.empty()){
-        return;
-      }
       std::cout << id << " " << title << std::endl;
     }
   }else if (code == Protocol::ANS_NAK){

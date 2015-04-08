@@ -22,6 +22,7 @@ Selection queryUserMenu(){
   int selection;
   std::cin >> selection;
   std::cout << std::endl;
+  headingNewline = true;
   return static_cast<Selection>(selection);
 }
 
@@ -29,6 +30,7 @@ int promptInt(std::string message){
   std::cout << message << std::endl;
   int input;
   std::cin >> input;
+  std::cout << std::endl;
   headingNewline = true;
   return input;
 }
@@ -40,6 +42,7 @@ std::string promptString(std::string message){
     std::cin.ignore();
   }
   std::getline(std::cin,input);
+  std::cout << std::endl;
   headingNewline = false;
   return input;
 }
@@ -122,12 +125,8 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
-  Connection conn(argv[1], port);
-  if (!conn.isConnected()) {
-    std::cerr << "Connection attempt failed" << std::endl;
-    exit(1);
-  }
 
-  ClientMessageHandler client(conn);
+
+  ClientMessageHandler client(argv[1],port);
   interact(client);
 }

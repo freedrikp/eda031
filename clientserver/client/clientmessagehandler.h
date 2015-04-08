@@ -3,7 +3,7 @@
 
 class ClientMessageHandler{
 public:
-  ClientMessageHandler(Connection& conn);
+  ClientMessageHandler(char* host, int port);
   ~ClientMessageHandler() = default;
   void listNewsgroups();
   void createNewsgroup(std::string& name);
@@ -14,7 +14,7 @@ public:
   void getArticle(int groupID, int articleID);
 
 private:
-  const Connection& conn;
+  const Connection conn;
 
   unsigned char readCode();
   void writeCode(unsigned char value);
