@@ -18,6 +18,8 @@ private:
 
   unsigned char readCode();
   void writeCode(unsigned char value);
+  int readInt();
+  void writeInt(int value);
   int readNumber();
   void writeNumber(int value);
   std::string readString();

@@ -5,6 +5,8 @@
 
 enum Selection {LIST_NG = 1,CREATE_NG = 2,DELETE_NG = 3,LIST_ART = 4,CREATE_ART = 5,DELETE_ART = 6,GET_ART = 7};
 
+bool headingNewline = false;
+
 
 Selection queryUserMenu(){
   std::cout << "------------------------------" << std::endl;
@@ -23,6 +25,24 @@ Selection queryUserMenu(){
   return static_cast<Selection>(selection);
 }
 
+int promptInt(std::string message){
+  std::cout << message << std::endl;
+  int input;
+  std::cin >> input;
+  headingNewline = true;
+  return input;
+}
+
+std::string promptString(std::string message){
+  std::cout << message << std::endl;
+  std::string input;
+  if (headingNewline){
+    std::cin.ignore();
+  }
+  std::getline(std::cin,input);
+  headingNewline = false;
+  return input;
+}
 
 void interact(ClientMessageHandler& client){
   while(true){
@@ -34,61 +54,37 @@ void interact(ClientMessageHandler& client){
         break;
       }
       case CREATE_NG: {
-        std::cout << "What should the newsgroup be called?" << std::endl;
-        std::string name;
-        std::cin.ignore();
-        std::getline(std::cin,name);
+        std::string name = promptString("What should the newsgroup be called?");
         client.createNewsgroup(name);
         break;
       }
       case DELETE_NG: {
-        std::cout << "Which newsgroup do you want to remove?" << std::endl;
-        int groupID;
-        std::cin >> groupID;
+        int groupID = promptInt("Which newsgroup do you want to remove?");
         client.deleteNewsgroup(groupID);
         break;
       }
       case LIST_ART: {
-        std::cout << "For which newsgroup do you wish to list articles?" << std::endl;
-        int groupID;
-        std::cin >> groupID;
+        int groupID = promptInt("For which newsgroup do you wish to list articles?");
         client.listArticles(groupID);
         break;
       }
       case CREATE_ART: {
-        std::cout << "For which newsgroup do you wish to create the article?" << std::endl;
-        int groupID;
-        std::cin >> groupID;
-        std::cout << "What should the title be?" << std::endl;
-        std::string title;
-        std::cin.ignore();
-        std::getline(std::cin,title);
-        std::cout << "Who is the author?" << std::endl;
-        std::string author;
-        std::getline(std::cin,author);
-        std::cout << "What is the text of the article?" << std::endl;
-        std::string text;
-        std::getline(std::cin,text);
+        int groupID = promptInt("For which newsgroup do you wish to create the article?");
+        std::string title = promptString("What should the title be?");
+        std::string author = promptString("Who is the author?");
+        std::string text = promptString("What is the text of the article?");
         client.createArticle(groupID,title,author,text);
         break;
       }
       case DELETE_ART: {
-        std::cout << "In which newsgroup is the article located?" << std::endl;
-        int groupID;
-        std::cin >> groupID;
-        std::cout << "Which article is it?" << std::endl;
-        int articleID;
-        std::cin >> articleID;
+        int groupID = promptInt("In which newsgroup is the article located?");
+        int articleID = promptInt("Which article is it?");
         client.deleteArticle(groupID,articleID);
         break;
       }
       case GET_ART: {
-        std::cout << "In which newsgroup is the article located?" << std::endl;
-        int groupID;
-        std::cin >> groupID;
-        std::cout << "Which article is it?" << std::endl;
-        int articleID;
-        std::cin >> articleID;
+        int groupID = promptInt("In which newsgroup is the article located?");
+        int articleID = promptInt("Which article is it?");
         client.getArticle(groupID,articleID);
         break;
       }

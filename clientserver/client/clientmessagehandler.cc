@@ -14,12 +14,7 @@ void ClientMessageHandler::writeCode(unsigned char value) {
   conn.write(value);
 }
 
-
-int ClientMessageHandler::readNumber() {
-  if (readCode() != Protocol::PAR_NUM){
-    std::cerr << "Protocol does not match - Could not read number" << std::endl;
-    return -1;
-  }
+int ClientMessageHandler::readInt(){
   unsigned char byte1 = conn.read();
   unsigned char byte2 = conn.read();
   unsigned char byte3 = conn.read();
@@ -27,12 +22,24 @@ int ClientMessageHandler::readNumber() {
   return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
 }
 
-void ClientMessageHandler::writeNumber(int value) {
-  conn.write(Protocol::PAR_NUM);
+void ClientMessageHandler::writeInt(int value){
   conn.write((value >> 24) & 0xFF);
   conn.write((value >> 16) & 0xFF);
   conn.write((value >> 8) & 0xFF);
   conn.write(value & 0xFF);
+}
+
+int ClientMessageHandler::readNumber() {
+  if (readCode() != Protocol::PAR_NUM){
+    std::cerr << "Protocol does not match - Could not read number" << std::endl;
+    return -1;
+  }
+  return readInt();
+}
+
+void ClientMessageHandler::writeNumber(int value) {
+  conn.write(Protocol::PAR_NUM);
+  writeInt(value);
 }
 
 std::string ClientMessageHandler::readString() {
@@ -41,11 +48,7 @@ std::string ClientMessageHandler::readString() {
     return std::string();
   }
 
-  unsigned char byte1 = conn.read();
-  unsigned char byte2 = conn.read();
-  unsigned char byte3 = conn.read();
-  unsigned char byte4 = conn.read();
-  int n = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+  int n = readInt();
 
   std::string s;
   for(int i = 0; i < n; ++i){
@@ -59,10 +62,7 @@ void ClientMessageHandler::writeString(const std::string& s) {
   conn.write(Protocol::PAR_STRING);
   size_t value = s.size();
 
-  conn.write((value >> 24) & 0xFF);
-  conn.write((value >> 16) & 0xFF);
-  conn.write((value >> 8) & 0xFF);
-  conn.write(value & 0xFF);
+  writeInt(value);
 
   for (char c : s) {
     conn.write(c);
