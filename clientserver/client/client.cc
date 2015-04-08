@@ -8,7 +8,7 @@ enum Selection {LIST_NG = 1,CREATE_NG = 2,DELETE_NG = 3,LIST_ART = 4,CREATE_ART 
 
 Selection queryUserMenu(){
   std::cout << "------------------------------" << std::endl;
-  std::cout << "What is my bidding, master?" << std::endl << std::endl;
+  std::cout << "What is thy bidding, my master?" << std::endl << std::endl;
   std::cout << "List newsgroups - 1" << std::endl;
   std::cout << "Create newsgroup - 2" << std::endl;
   std::cout << "Delete newsgroup - 3" << std::endl;
