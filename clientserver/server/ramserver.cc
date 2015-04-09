@@ -9,6 +9,7 @@
 #include "nonewsgroupexception.h"
 #include "noarticleexception.h"
 #include "protocolviolationexception.h"
+#include "servermessagehandler.h"
 
 #include <memory>
 #include <iostream>
@@ -25,13 +26,7 @@ unsigned char readCode(const shared_ptr<Connection>& conn) {
 	return conn->read();
 }
 
-/*
-* Read an integer from a client.
-*/
-int readInt(const shared_ptr<Connection>& conn) {
-	if(readCode(conn) != Protocol::PAR_NUM){
-		throw ProtocolViolationException("Read Int");
-	}
+int readBytes(const shared_ptr<Connection>& conn) {
 	unsigned char byte1 = conn->read();
 	unsigned char byte2 = conn->read();
 	unsigned char byte3 = conn->read();
@@ -42,17 +37,22 @@ int readInt(const shared_ptr<Connection>& conn) {
 /*
 * Read an integer from a client.
 */
+int readInt(const shared_ptr<Connection>& conn) {
+	if(readCode(conn) != Protocol::PAR_NUM){
+		throw ProtocolViolationException("Read Int");
+	}
+	return readBytes(conn);
+}
+
+/*
+* Read an integer from a client.
+*/
 string readString(const shared_ptr<Connection>& conn) {
 	if(readCode(conn) != Protocol::PAR_STRING){
 		throw ProtocolViolationException("Read String");
 	}
 	string s;
-
-	unsigned char byte1 = conn->read();
-	unsigned char byte2 = conn->read();
-	unsigned char byte3 = conn->read();
-	unsigned char byte4 = conn->read();
-	int n = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+	int n = readBytes(conn);
 
 	for(int i = 0; i < n; ++i){
 		s += readCode(conn);
