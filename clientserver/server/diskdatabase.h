@@ -21,5 +21,6 @@ private:
   std::unordered_map<size_t,std::unordered_map<size_t,Article>> articles;
   std::unordered_map<size_t,size_t> articleCounters;
   size_t newsGroupCounter;
+  static std::string const ROOTPATH;
 };
 #endif
