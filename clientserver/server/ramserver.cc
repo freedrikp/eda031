@@ -26,6 +26,7 @@ unsigned char readCode(const shared_ptr<Connection>& conn) {
 	return conn->read();
 }
 
+
 int readBytes(const shared_ptr<Connection>& conn) {
 	unsigned char byte1 = conn->read();
 	unsigned char byte2 = conn->read();
