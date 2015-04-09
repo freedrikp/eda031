@@ -20,7 +20,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]){
-	cout << "Starting server... " << endl;
+	cout << "Starting disk server... " << endl;
 	if (argc != 2) {
 		cerr << "Usage: myserver port-number" << endl;
 		exit(1);
