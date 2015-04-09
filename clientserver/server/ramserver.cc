@@ -20,6 +20,12 @@
 using namespace std;
 
 void listNewsGroups(const shared_ptr<Connection>& conn, MemoryDatabase& database);
+void createNewsGroups(const shared_ptr<Connection>& conn, MemoryDatabase& database);
+void deleteNewsGroups(const shared_ptr<Connection>& conn, MemoryDatabase& database);
+void listArticle(const shared_ptr<Connection>& conn, MemoryDatabase& database);
+void createArticle(const shared_ptr<Connection>& conn, MemoryDatabase& database);
+void deleteArticle(const shared_ptr<Connection>& conn, MemoryDatabase& database);
+void getArticle(const shared_ptr<Connection>& conn, MemoryDatabase& database);
 
 int main(int argc, char* argv[]){
 	cout << "Starting server... " << endl;
@@ -45,138 +51,35 @@ int main(int argc, char* argv[]){
 	MemoryDatabase database;
 	cout << "Now listening on port " << argv[1] << endl;
 	while (true) {
-
 		auto conn = server.waitForActivity();
 		if (conn != nullptr) {
 			try {
 				int kase = ServerMessageHandler::readCode(conn);
 				switch(kase){
-					case Protocol::COM_LIST_NG:{
-						listNewsGroups(conn, database);
-						break;
-					}
-					case Protocol::COM_CREATE_NG:{
-						string name = ServerMessageHandler::readString(conn);
-						if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
-							throw ProtocolViolationException("COM_CREATE_NG");
-						}
-						ServerMessageHandler::writeCode(conn, Protocol::ANS_CREATE_NG);
-						if(database.addNewsgroup(name)){
-							ServerMessageHandler::writeCode(conn, Protocol::ANS_ACK);
-						} else {
-							ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
-							ServerMessageHandler::writeCode(conn, Protocol::ERR_NG_ALREADY_EXISTS);
-						}
-						ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
-						
-						break;
-					}
-					case Protocol::COM_DELETE_NG:{
-						size_t nGroupID = static_cast<size_t>(ServerMessageHandler::readInt(conn));
-						if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
-							throw ProtocolViolationException("COM_DELETE_NG");
-						}
-						ServerMessageHandler::writeCode(conn, Protocol::ANS_DELETE_NG);
-						if(database.removeNewsgroup(nGroupID)){
-							ServerMessageHandler::writeCode(conn, Protocol::ANS_ACK);
-						} else {
-							ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
-							ServerMessageHandler::writeCode(conn, Protocol::ERR_NG_DOES_NOT_EXIST);
-						}
-						ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
-						break;
-					}
-					case Protocol::COM_LIST_ART:{
-						size_t nGroupID = static_cast<size_t>(ServerMessageHandler::readInt(conn));
-						if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
-							throw ProtocolViolationException("COM_LIST_ART");
-						}
-						ServerMessageHandler::writeCode(conn, Protocol::ANS_LIST_ART);
-						try{
-							vector<Article> articles = database.getArticles(nGroupID);
-							ServerMessageHandler::writeCode(conn, Protocol::ANS_ACK);
-							ServerMessageHandler::writeNumber(conn, articles.size());
-							for(auto it = articles.begin(); it < articles.end(); ++it){
-								ServerMessageHandler::writeNumber(conn, it->getID());
-								ServerMessageHandler::writeString(conn, it->getTitle());
-							}
-
-						} catch (NoNewsgroupException nne){
-							ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
-							ServerMessageHandler::writeCode(conn, Protocol::ERR_NG_DOES_NOT_EXIST);
-						}
-						ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
-						break;
-					}
-					case Protocol::COM_CREATE_ART:{
-						int newsgroupId = ServerMessageHandler::readInt(conn);
-						string author = ServerMessageHandler::readString(conn);
-						string title = ServerMessageHandler::readString(conn);
-						string text = ServerMessageHandler::readString(conn);
-						if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
-							throw ProtocolViolationException("COM_CREATE_ART");
-						}
-						ServerMessageHandler::writeCode(conn, Protocol::ANS_CREATE_ART);
-						if(database.addArticle(newsgroupId, author, title, text)){
-							ServerMessageHandler::writeCode(conn, Protocol::ANS_ACK);
-						}else {
-
-							ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
-							ServerMessageHandler::writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
-						}
-						ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
-						break;
-					}
-
-					case Protocol::COM_DELETE_ART:{
-						int newsgroupId = ServerMessageHandler::readInt(conn);
-						int articleId = ServerMessageHandler::readInt(conn);
-						if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
-							throw ProtocolViolationException("COM_DELETE_ART");
-						}
-						ServerMessageHandler::writeCode(conn, Protocol::ANS_DELETE_ART);
-						try{
-							database.removeArticle(newsgroupId, articleId);
-							ServerMessageHandler::writeCode(conn, Protocol::ANS_ACK);
-						}catch(NoNewsgroupException e){
-							ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
-							ServerMessageHandler::writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
-						}catch(NoArticleException e){
-							ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
-							ServerMessageHandler::writeCode(conn,Protocol::ERR_ART_DOES_NOT_EXIST);
-						}
-						ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
-						break;
-					}
-
-					case Protocol::COM_GET_ART:{
-						int newsgroupId = ServerMessageHandler::readInt(conn);
-						int articleId = ServerMessageHandler::readInt(conn);
-						if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
-							throw ProtocolViolationException("COM_GET_ART");
-						}
-						ServerMessageHandler::writeCode(conn, Protocol::ANS_GET_ART);
-						try{
-							Article article = database.getArticle(newsgroupId, articleId);
-							ServerMessageHandler::writeCode(conn, Protocol::ANS_ACK);
-							ServerMessageHandler::writeString(conn, article.getTitle());
-							ServerMessageHandler::writeString(conn, article.getAuthor());
-							ServerMessageHandler::writeString(conn, article.getText());
-						}catch(NoNewsgroupException e){
-							ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
-							ServerMessageHandler::writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
-						}catch(NoArticleException e){
-							ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
-							ServerMessageHandler::writeCode(conn,Protocol::ERR_ART_DOES_NOT_EXIST);
-						}
-						ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
-						break;
-					}
-
+					case Protocol::COM_LIST_NG:
+					listNewsGroups(conn, database);
+					break;
+					case Protocol::COM_CREATE_NG:
+					createNewsGroups(conn, database);
+					break;
+					case Protocol::COM_DELETE_NG:
+					deleteNewsGroups(conn, database);
+					break;
+					case Protocol::COM_LIST_ART:
+					listArticle(conn, database);
+					break;
+					case Protocol::COM_CREATE_ART:
+					createArticle(conn, database);
+					break;
+					case Protocol::COM_DELETE_ART:
+					deleteArticle(conn, database);
+					break;
+					case Protocol::COM_GET_ART:
+					getArticle(conn, database);
+					break;
 					case Protocol::COM_END:
 					throw ProtocolViolationException("Unexpected COM_END.");
 					break;
-
 					default:
 					throw ProtocolViolationException("Unknown error.");
 					break;
@@ -209,3 +112,117 @@ void listNewsGroups(const shared_ptr<Connection>& conn, MemoryDatabase& database
 	}
 	ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
 }
+
+void createNewsGroups(const shared_ptr<Connection>& conn, MemoryDatabase& database){
+	string name = ServerMessageHandler::readString(conn);
+	if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
+		throw ProtocolViolationException("COM_CREATE_NG");
+	}
+	ServerMessageHandler::writeCode(conn, Protocol::ANS_CREATE_NG);
+	if(database.addNewsgroup(name)){
+		ServerMessageHandler::writeCode(conn, Protocol::ANS_ACK);
+	} else {
+		ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
+		ServerMessageHandler::writeCode(conn, Protocol::ERR_NG_ALREADY_EXISTS);
+	}
+	ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
+}			
+
+void deleteNewsGroups(const shared_ptr<Connection>& conn, MemoryDatabase& database){
+	size_t nGroupID = static_cast<size_t>(ServerMessageHandler::readInt(conn));
+	if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
+		throw ProtocolViolationException("COM_DELETE_NG");
+	}
+	ServerMessageHandler::writeCode(conn, Protocol::ANS_DELETE_NG);
+	if(database.removeNewsgroup(nGroupID)){
+		ServerMessageHandler::writeCode(conn, Protocol::ANS_ACK);
+	} else {
+		ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
+		ServerMessageHandler::writeCode(conn, Protocol::ERR_NG_DOES_NOT_EXIST);
+	}
+	ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
+}
+
+void listArticle(const shared_ptr<Connection>& conn, MemoryDatabase& database){
+	size_t nGroupID = static_cast<size_t>(ServerMessageHandler::readInt(conn));
+	if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
+		throw ProtocolViolationException("COM_LIST_ART");
+	}
+	ServerMessageHandler::writeCode(conn, Protocol::ANS_LIST_ART);
+	try{
+		vector<Article> articles = database.getArticles(nGroupID);
+		ServerMessageHandler::writeCode(conn, Protocol::ANS_ACK);
+		ServerMessageHandler::writeNumber(conn, articles.size());
+		for(auto it = articles.begin(); it < articles.end(); ++it){
+			ServerMessageHandler::writeNumber(conn, it->getID());
+			ServerMessageHandler::writeString(conn, it->getTitle());
+		}
+
+	} catch (NoNewsgroupException nne){
+		ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
+		ServerMessageHandler::writeCode(conn, Protocol::ERR_NG_DOES_NOT_EXIST);
+	}
+	ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
+}
+
+void createArticle(const shared_ptr<Connection>& conn, MemoryDatabase& database){
+	int newsgroupId = ServerMessageHandler::readInt(conn);
+	string author = ServerMessageHandler::readString(conn);
+	string title = ServerMessageHandler::readString(conn);
+	string text = ServerMessageHandler::readString(conn);
+	if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
+		throw ProtocolViolationException("COM_CREATE_ART");
+	}
+	ServerMessageHandler::writeCode(conn, Protocol::ANS_CREATE_ART);
+	if(database.addArticle(newsgroupId, author, title, text)){
+		ServerMessageHandler::writeCode(conn, Protocol::ANS_ACK);
+	}else {
+
+		ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
+		ServerMessageHandler::writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
+	}
+	ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
+}
+
+void deleteArticle(const shared_ptr<Connection>& conn, MemoryDatabase& database){
+	int newsgroupId = ServerMessageHandler::readInt(conn);
+	int articleId = ServerMessageHandler::readInt(conn);
+	if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
+		throw ProtocolViolationException("COM_DELETE_ART");
+	}
+	ServerMessageHandler::writeCode(conn, Protocol::ANS_DELETE_ART);
+	try{
+		database.removeArticle(newsgroupId, articleId);
+		ServerMessageHandler::writeCode(conn, Protocol::ANS_ACK);
+	}catch(NoNewsgroupException e){
+		ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
+		ServerMessageHandler::writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
+	}catch(NoArticleException e){
+		ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
+		ServerMessageHandler::writeCode(conn,Protocol::ERR_ART_DOES_NOT_EXIST);
+	}
+	ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
+}
+
+void getArticle(const shared_ptr<Connection>& conn, MemoryDatabase& database){
+	int newsgroupId = ServerMessageHandler::readInt(conn);
+	int articleId = ServerMessageHandler::readInt(conn);
+	if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
+		throw ProtocolViolationException("COM_GET_ART");
+	}
+	ServerMessageHandler::writeCode(conn, Protocol::ANS_GET_ART);
+	try{
+		Article article = database.getArticle(newsgroupId, articleId);
+		ServerMessageHandler::writeCode(conn, Protocol::ANS_ACK);
+		ServerMessageHandler::writeString(conn, article.getTitle());
+		ServerMessageHandler::writeString(conn, article.getAuthor());
+		ServerMessageHandler::writeString(conn, article.getText());
+	}catch(NoNewsgroupException e){
+		ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
+		ServerMessageHandler::writeCode(conn,Protocol::ERR_NG_DOES_NOT_EXIST);
+	}catch(NoArticleException e){
+		ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
+		ServerMessageHandler::writeCode(conn,Protocol::ERR_ART_DOES_NOT_EXIST);
+	}
+	ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
+}					

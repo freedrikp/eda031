@@ -17,7 +17,7 @@ public:
 	*/
 	static int readInt(const shared_ptr<Connection>& conn) {
 		if(readCode(conn) != Protocol::PAR_NUM){
-			throw ProtocolViolationException("Read Int");
+			throw ProtocolViolationException("readInt");
 		}
 		return readBytes(conn);
 	}
@@ -27,7 +27,7 @@ public:
 	*/
 	static string readString(const shared_ptr<Connection>& conn) {
 		if(readCode(conn) != Protocol::PAR_STRING){
-			throw ProtocolViolationException("Read String");
+			throw ProtocolViolationException("readString");
 		}
 		string s;
 		int n = readBytes(conn);
