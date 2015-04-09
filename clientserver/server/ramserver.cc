@@ -19,6 +19,8 @@
 
 using namespace std;
 
+void listNewsGroups(const shared_ptr<Connection>& conn, MemoryDatabase& database);
+
 int main(int argc, char* argv[]){
 	cout << "Starting server... " << endl;
 	if (argc != 2) {
@@ -41,37 +43,22 @@ int main(int argc, char* argv[]){
 	}
 
 	MemoryDatabase database;
-	cout << "Now listening on port " << argv[1] << "." << endl;
+	cout << "Now listening on port " << argv[1] << endl;
 	while (true) {
 
 		auto conn = server.waitForActivity();
 		if (conn != nullptr) {
 			try {
 				int kase = ServerMessageHandler::readCode(conn);
-				cout << "kase: " << kase << endl;
 				switch(kase){
 					case Protocol::COM_LIST_NG:{
-						cout << "@COM_LIST_NG" << endl;
-						if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
-							throw ProtocolViolationException("Create ng");
-						}
-						ServerMessageHandler::writeCode(conn, Protocol::ANS_LIST_NG);
-						vector<Newsgroup> groups = database.getNewsgroups();
-						cout << "writing number of groups:" << groups.size() <<endl;
-						ServerMessageHandler::writeNumber(conn, groups.size());
-						for(auto it = groups.begin(); it < groups.end(); ++it){
-							cout << "writing nummber: "<< it->getID() << " and name " <<it->getName()<<endl;
-							ServerMessageHandler::writeNumber(conn, it->getID());
-							ServerMessageHandler::writeString(conn, it->getName());
-						}
-						ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
+						listNewsGroups(conn, database);
 						break;
 					}
 					case Protocol::COM_CREATE_NG:{
-						cout << "@COM_CREATE_NG" << endl;
 						string name = ServerMessageHandler::readString(conn);
 						if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
-								throw ProtocolViolationException("List ng");
+							throw ProtocolViolationException("COM_CREATE_NG");
 						}
 						ServerMessageHandler::writeCode(conn, Protocol::ANS_CREATE_NG);
 						if(database.addNewsgroup(name)){
@@ -85,10 +72,9 @@ int main(int argc, char* argv[]){
 						break;
 					}
 					case Protocol::COM_DELETE_NG:{
-						cout << "@COM_DELETE_NG" << endl;
 						size_t nGroupID = static_cast<size_t>(ServerMessageHandler::readInt(conn));
 						if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
-							throw ProtocolViolationException("Delete ng");
+							throw ProtocolViolationException("COM_DELETE_NG");
 						}
 						ServerMessageHandler::writeCode(conn, Protocol::ANS_DELETE_NG);
 						if(database.removeNewsgroup(nGroupID)){
@@ -101,26 +87,21 @@ int main(int argc, char* argv[]){
 						break;
 					}
 					case Protocol::COM_LIST_ART:{
-						cout << "@COM_LIST_ART" << endl;
 						size_t nGroupID = static_cast<size_t>(ServerMessageHandler::readInt(conn));
 						if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
-							throw ProtocolViolationException("List art");
+							throw ProtocolViolationException("COM_LIST_ART");
 						}
 						ServerMessageHandler::writeCode(conn, Protocol::ANS_LIST_ART);
 						try{
-							cout << "# apa 1" << endl;
 							vector<Article> articles = database.getArticles(nGroupID);
-							cout << "# apa 2" << endl;
 							ServerMessageHandler::writeCode(conn, Protocol::ANS_ACK);
 							ServerMessageHandler::writeNumber(conn, articles.size());
 							for(auto it = articles.begin(); it < articles.end(); ++it){
-								cout << "writing number: "<< it->getID() << " and name " <<it->getTitle()<<endl;
 								ServerMessageHandler::writeNumber(conn, it->getID());
 								ServerMessageHandler::writeString(conn, it->getTitle());
 							}
 
 						} catch (NoNewsgroupException nne){
-							cout << "# apa 9" << endl;
 							ServerMessageHandler::writeCode(conn, Protocol::ANS_NAK);
 							ServerMessageHandler::writeCode(conn, Protocol::ERR_NG_DOES_NOT_EXIST);
 						}
@@ -133,7 +114,7 @@ int main(int argc, char* argv[]){
 						string title = ServerMessageHandler::readString(conn);
 						string text = ServerMessageHandler::readString(conn);
 						if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
-							throw ProtocolViolationException("Create art");
+							throw ProtocolViolationException("COM_CREATE_ART");
 						}
 						ServerMessageHandler::writeCode(conn, Protocol::ANS_CREATE_ART);
 						if(database.addArticle(newsgroupId, author, title, text)){
@@ -151,7 +132,7 @@ int main(int argc, char* argv[]){
 						int newsgroupId = ServerMessageHandler::readInt(conn);
 						int articleId = ServerMessageHandler::readInt(conn);
 						if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
-							throw ProtocolViolationException("Delete art");
+							throw ProtocolViolationException("COM_DELETE_ART");
 						}
 						ServerMessageHandler::writeCode(conn, Protocol::ANS_DELETE_ART);
 						try{
@@ -172,7 +153,7 @@ int main(int argc, char* argv[]){
 						int newsgroupId = ServerMessageHandler::readInt(conn);
 						int articleId = ServerMessageHandler::readInt(conn);
 						if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
-							throw ProtocolViolationException("Get art");
+							throw ProtocolViolationException("COM_GET_ART");
 						}
 						ServerMessageHandler::writeCode(conn, Protocol::ANS_GET_ART);
 						try{
@@ -193,20 +174,14 @@ int main(int argc, char* argv[]){
 					}
 
 					case Protocol::COM_END:
-					throw ProtocolViolationException("Unexpected end");
+					throw ProtocolViolationException("Unexpected COM_END.");
 					break;
 
 					default:
-					throw ProtocolViolationException("wtf");
+					throw ProtocolViolationException("Unknown error.");
 					break;
 				}	
-				cout << "current database"<<endl;
 				vector<Newsgroup> groups = database.getNewsgroups();
-				cout << groups.size()<<endl;
-				for(auto it = groups.begin(); it < groups.end(); ++it){
-					cout << it->getID()<<endl;
-					cout << it->getName()<<endl;
-				}
 			} catch (ProtocolViolationException& e) {
 				cout << e.what() << endl;
 			} catch (ConnectionClosedException&) {
@@ -219,4 +194,18 @@ int main(int argc, char* argv[]){
 			cout << "New client connects" << endl;
 		}
 	}
+}
+
+void listNewsGroups(const shared_ptr<Connection>& conn, MemoryDatabase& database){
+	if(ServerMessageHandler::readCode(conn) != Protocol::COM_END){
+		throw ProtocolViolationException("COM_LIST_NG");
+	}
+	ServerMessageHandler::writeCode(conn, Protocol::ANS_LIST_NG);
+	vector<Newsgroup> groups = database.getNewsgroups();
+	ServerMessageHandler::writeNumber(conn, groups.size());
+	for(auto it = groups.begin(); it < groups.end(); ++it){
+		ServerMessageHandler::writeNumber(conn, it->getID());
+		ServerMessageHandler::writeString(conn, it->getName());
+	}
+	ServerMessageHandler::writeCode(conn, Protocol::ANS_END);
 }
