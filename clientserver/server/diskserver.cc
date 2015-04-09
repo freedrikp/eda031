@@ -3,7 +3,7 @@
 #include "connection.h"
 #include "connectionclosedexception.h"
 #include "protocol.h"
-#include "memoryDatabase.h"
+#include "diskdatabase.h"
 #include "newsgroup.h"
 #include "article.h"
 #include "nonewsgroupexception.h"
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
 		exit(1);
 	}
 
-	MemoryDatabase database;
+	DiskDatabase database;
 	cout << "Now listening on port " << argv[1] << endl;
 	while (true) {
 		auto conn = server.waitForActivity();

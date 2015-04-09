@@ -1,14 +1,14 @@
-#ifndef MEMDB_H
-#define MEMDB_H
+#ifndef DSKDB_H
+#define DSKDB_H
 #include "database.h"
 #include <unordered_map>
 #include "newsgroup.h"
 #include "article.h"
 
-class MemoryDatabase : public Database {
+class DiskDatabase : public Database {
 public:
-  MemoryDatabase();
-  ~MemoryDatabase() = default;
+  DiskDatabase();
+  ~DiskDatabase() = default;
   std::vector<Newsgroup> getNewsgroups();
   std::vector<Article> getArticles(size_t nGroupID);
   Article getArticle(size_t nGroupID, size_t articleID);

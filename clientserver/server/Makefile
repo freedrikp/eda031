@@ -19,7 +19,7 @@ LDFLAGS   = -g -L..
 LDLIBS = -lclientserver
 
 # Targets
-PROGS = ramserver testmemorydatabase
+PROGS = ramserver testmemorydatabase diskserver
 
 all: $(PROGS)
 
@@ -28,6 +28,8 @@ all: $(PROGS)
 ramserver: ramserver.o memoryDatabase.o article.o newsgroup.o
 
 testmemorydatabase: memoryDatabase.o article.o newsgroup.o
+
+diskserver: diskserver.o diskdatabase.o article.o newsgroup.o
 
 # Phony targets
 .PHONY: all clean
