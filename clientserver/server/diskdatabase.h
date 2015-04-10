@@ -18,10 +18,6 @@ public:
   bool addArticle(size_t nGroupID, std::string title, std::string author, std::string text);
   void removeArticle(size_t nGroupID, size_t articleID);
 private:
-  std::unordered_map<size_t,Newsgroup> newsGroups;
-  std::unordered_map<size_t,std::unordered_map<size_t,Article>> articles;
-  std::unordered_map<size_t,size_t> articleCounters;
-  size_t newsGroupCounter;
   static std::string const ROOTPATH;
   static std::string const NEWSGROUPSFILE;
   static std::string const NG_IDCOUNTFILE;
