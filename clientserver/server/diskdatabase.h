@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "newsgroup.h"
 #include "article.h"
+#include <fstream>
 
 class DiskDatabase : public Database {
 public:
@@ -30,5 +31,10 @@ private:
   static std::string const ART_AUTHORFILE;
   static std::string const ART_TEXTFILE;
 
+  static bool fileExists(const std::string fileName)
+  {
+    std::ifstream infile(fileName);
+    return infile.good();
+  }
 };
 #endif
