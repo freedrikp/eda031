@@ -44,13 +44,14 @@ std::vector<Newsgroup> DiskDatabase::getNewsgroups(){
     while ((ent = readdir(rootdir)) != NULL) {
       if (ent->d_type == DT_DIR){
         size_t newsGroupID = atoi(ent->d_name);
-        string newsGroupName = "apan boll";
+        string newsGroupName = "FATAL_ERROR_OOPS";
         ifstream ifs (ROOTPATH+"/"+ent->d_name+"/"+NG_NAMEFILE, ifstream::in);
         if(ifs.good()){
           getline(ifs, newsGroupName);
           printf ("%s\n", ent->d_name);
           result.push_back({newsGroupName, newsGroupID});
         }
+        ifs.close();
       }
     }
     closedir (rootdir);
@@ -87,11 +88,34 @@ bool DiskDatabase::addArticle(size_t nGroupID, std::string title, std::string au
 
 std::vector<Article> DiskDatabase::getArticles(size_t nGroupID){
   std::vector<Article> result;
-  if (newsGroups.find(nGroupID) != newsGroups.end()){
-    for (auto it = articles[nGroupID].begin(); it != articles[nGroupID].end(); ++it){
-      result.push_back(it->second);
+
+  DIR* rootdir;
+  struct dirent *ent;
+  if ((rootdir = opendir((ROOTPATH+"/"+to_string(nGroupID)).c_str())) != NULL) {
+  /* print all the files and directories within directory */
+    while ((ent = readdir(rootdir)) != NULL) {
+      if (ent->d_type == DT_DIR){
+        size_t articleID = atoi(ent->d_name);
+        string articleName = "FATAL_ERROR_OOPS";
+        string articleAuthor = "FATAL_ERROR_OOPS";
+        string articleText = "";
+        string articlePath = ROOTPATH+"/"+to_string(nGroupID)+"/"+ent->d_name+"/";
+        ifstream name_ifs (articlePath+ART_NAMEFILE, ifstream::in);
+        ifstream auth_ifs (articlePath+ART_AUTHORFILE, ifstream::in);
+        ifstream text_ifs (articlePath+ART_TEXTFILE, ifstream::in);
+        if(name_ifs.good() && auth_ifs.good() && text_ifs.good()){
+          getline(name_ifs, articleName);
+          getline(auth_ifs, articleAuthor);
+          while(text_ifs.good()){
+            string line;
+            getline(text_ifs, line);
+            articleText += line + "\n";
+          }
+          result.push_back({articleName, articleAuthor, articleText, articleID});
+        }
+      }
     }
-    sort(result.begin(),result.end(),[](const Article& art1, const Article& art2){return art1.getID() < art2.getID();});
+    closedir (rootdir);
   }else{
     throw NoNewsgroupException();
   }
