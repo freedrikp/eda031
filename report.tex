@@ -37,7 +37,7 @@ reply. UML sequence diagrams are good for this purpose."}
 
 \subsection{Server}
 
-Describes the common things between the servers 
+Describes the common things between the servers
 
 \subsubsection{In-Memory Server}
 
@@ -51,14 +51,27 @@ Describes the unique things in Disk server
 
 
 \subsection{Client}
+The client is divided into four parts. These four parts consists of two classes, one struct and a file containing a few methods including the \texttt{main}-method of the client itself. Out of these foru parts we have only developed two. An overview of the client parts is shown in figure \ref{clientUML}.
 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{projectUML-client.png}
+    \caption{UML diagram client the client}
+    \label{clientUML}
+\end{figure}
+
+We have developed the two parts named \texttt{Client} and \texttt{ClientMessageHandler}. The parts named \texttt{Connection} and \texttt{Protocol} were given to us when we started the development.
+
+The \texttt{Connection} class simply describes a connection to the server part and has methods which allows us to write messages to the server. The \texttt{Protocol} struct defines constants used in the protocol that were specified for us.
+
+The \texttt{ClientMessageHandler} uses a \texttt{Connection} and the constants defined in \texttt{Protocol} in order to send commands to the server and present the responses. Every action that the client can issue to the server is represented as a single method in the \texttt{ClientMessageHandler} class. For instance, it has methods such as \texttt{createNewsgroup}, \texttt{deleteNewsgroup}, \texttt{createArticle} and \texttt{getArticle} among others. This class also contains some private helper methods used to read and write strings and numbers received from and sent to the server.
+
+The file named \texttt{Client} contains the \texttt{main}-method of the entire client and everything that is connected to the user interface and thus all interaction with the user. For example, this file contains methods such as \texttt{queryUserMenu}, \texttt{promptInt}, \texttt{promptString} and \texttt{interact}. These methods are fairly straightforward, the prompt methods are simply helper functions used to request input from the user. \texttt{queryUserMenu} displays to the user a menu of all available actions and asks for a selection. \texttt{interact} connects all functions together. It contains a loop that dislays the menu and depending on the selection it uses the prompt functions to gather input and finally it calls the appropriate method in the \texttt{ClientMessageHandler}. The \texttt{main}-method simply initializes the \texttt{ClientMessagehandler} and calls the \texttt{interact} function.
 
 \section{Conclusions}
 
-Enligt projektbeskrivning: 
+\textbf{Enligt projektbeskrivning:
 "Requirements that you fulfill, problems that you haven’t succeeded in solving,
 etc. If you have found that the system ought to have more features you should elaborate on
-this. Any suggestions for improvements to the project are also welcome"
+this. Any suggestions for improvements to the project are also welcome"}
 \end{document}
-
-
