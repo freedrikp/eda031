@@ -37,6 +37,8 @@ reply. UML sequence diagrams are good for this purpose."}
 
 \subsection{Server}
 
+The server consists of five parts. Entities representing newsgroups and articles, a database keeping track of these, a server which handles connections and a message handler which does the communication with the client.
+
 Describes the common things between the servers
 
 \subsubsection{In-Memory Server}
@@ -46,6 +48,8 @@ Describes the unique things in Memory server
 
 \subsubsection{On-Disk Server}
 The diskserver stores information on the disk \emph{only}. Every time data is requested it is read from the disk, and every read is written to the disk. While this is significantly slower than keeping the database in the memory alongside the disk, we do not risk running out of memory as the database grows.
+
+The information is stored in a specific folder, where each group has its own folder, and each article has its own folder inside these.
 
 Apart from the \texttt{diskdatabase} the diskserver is identical to the memoryserver. 
 
