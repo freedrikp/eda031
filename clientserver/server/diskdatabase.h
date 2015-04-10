@@ -22,5 +22,13 @@ private:
   std::unordered_map<size_t,size_t> articleCounters;
   size_t newsGroupCounter;
   static std::string const ROOTPATH;
+  static std::string const NEWSGROUPSFILE;
+  static std::string const NG_IDCOUNTFILE;
+  static std::string const NG_NAMEFILE;
+  static std::string const ART_IDCOUNTFILE;
+  static std::string const ART_NAMEFILE;
+  static std::string const ART_AUTHORFILE;
+  static std::string const ART_TEXTFILE;
+
 };
 #endif
