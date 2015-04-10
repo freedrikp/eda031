@@ -103,7 +103,7 @@ std::vector<Article> DiskDatabase::getArticles(size_t nGroupID){
         ifstream name_ifs (articlePath+ART_NAMEFILE, ifstream::in);
         ifstream auth_ifs (articlePath+ART_AUTHORFILE, ifstream::in);
         ifstream text_ifs (articlePath+ART_TEXTFILE, ifstream::in);
-        if(name_ifs.good() && auth_ifs.good() && text_ifs.good()){
+        if(name_ifs.good() && auth_ifs.good()){
           getline(name_ifs, articleName);
           getline(auth_ifs, articleAuthor);
           while(text_ifs.good()){
@@ -123,10 +123,25 @@ std::vector<Article> DiskDatabase::getArticles(size_t nGroupID){
 }
 
 Article DiskDatabase::getArticle(size_t nGroupID, size_t articleID){
-  if (newsGroups.find(nGroupID) != newsGroups.end()){
-    auto it = articles[nGroupID].find(articleID);
-    if (it != articles[nGroupID].end()){
-      return it->second;
+  string articleName = "FATAL_ERROR_OOPS";
+  string articleAuthor = "FATAL_ERROR_OOPS";
+  string articleText = "";
+  string groupPath = ROOTPATH+"/"+to_string(nGroupID)+"/";
+  ifstream ng_ifs (groupPath+NG_NAMEFILE, ifstream::in);
+  if(ng_ifs.good()){
+    string articlePath = groupPath+to_string(articleID)+"/";
+    ifstream name_ifs (articlePath+ART_NAMEFILE, ifstream::in);
+    ifstream auth_ifs (articlePath+ART_AUTHORFILE, ifstream::in);
+    ifstream text_ifs (articlePath+ART_TEXTFILE, ifstream::in);
+    if(name_ifs.good() && auth_ifs.good()){
+      getline(name_ifs, articleName);
+      getline(auth_ifs, articleAuthor);
+      while(text_ifs.good()){
+        string line;
+        getline(text_ifs, line);
+        articleText += line + "\n";
+      }
+      return {articleName, articleAuthor, articleText, articleID};
     }else{
       throw NoArticleException();
     }
