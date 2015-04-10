@@ -27,7 +27,7 @@ private:
   static std::string const NG_IDCOUNTFILE;
   static std::string const NG_NAMEFILE;
   static std::string const ART_IDCOUNTFILE;
-  static std::string const ART_NAMEFILE;
+  static std::string const ART_TITLEFILE;
   static std::string const ART_AUTHORFILE;
   static std::string const ART_TEXTFILE;
 
