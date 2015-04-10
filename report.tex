@@ -45,9 +45,9 @@ Describes the unique things in Memory server
 
 
 \subsubsection{On-Disk Server}
+The diskserver stores information on the disk \emph{only}. Every time data is requested it is read from the disk, and every read is written to the disk. While this is significantly slower than keeping the database in the memory alongside the disk, we do not risk running out of memory as the database grows.
 
-
-Describes the unique things in Disk server
+Apart from the \texttt{diskdatabase} the diskserver is identical to the memoryserver. 
 
 
 \subsection{Client}
