@@ -23,14 +23,55 @@ const string DiskDatabase::ART_TEXTFILE = "art_text";
 DiskDatabase::DiskDatabase(): newsGroupCounter(0) {
   int status = mkdir(ROOTPATH.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
   cout << "Initializing diskdata (" << status << ")" << endl;
+  
+  if(!DiskDatabase::fileExists(ROOTPATH+"/"+NEWSGROUPSFILE)){
+    ofstream ofs_newsgroups(ROOTPATH+"/"+NEWSGROUPSFILE);
+    ofs_newsgroups << "";
+    ofs_newsgroups.close();
+  }
+
+  if(!DiskDatabase::fileExists(ROOTPATH+"/"+NG_IDCOUNTFILE)){
+    ofstream ofs_ng_idcount(ROOTPATH+"/"+NG_IDCOUNTFILE);
+    ofs_ng_idcount << "0";
+    ofs_ng_idcount.close();
+  }
 }
 
 bool DiskDatabase::addNewsgroup(std::string name){
-  string path = ROOTPATH + "/" + name;
-  int status = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  if (status == -1){
-    return false;
+  ifstream ifs_newsgroups (ROOTPATH+"/"+NEWSGROUPSFILE, ifstream::in);
+  while(ifs_newsgroups.good()){
+    string line;
+    getline(ifs_newsgroups, line);
+    if(name.compare(line) == 0){
+      return false;
+    }
   }
+
+  size_t articleID = 0;
+  cout << "#1" << articleID << endl;
+  ifstream ifs_ng_idcount (ROOTPATH+"/"+NG_IDCOUNTFILE, ifstream::in);
+  if(ifs_ng_idcount.good()){
+    ifs_ng_idcount >> articleID;
+  }
+  cout << "#2" << articleID << endl;
+  ifs_ng_idcount.close();
+  ++articleID;
+  cout << "#3" << articleID << endl;
+
+  string groupPath = ROOTPATH+"/"+to_string(articleID);
+  mkdir(groupPath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+  ofstream ofs_newsgroups (ROOTPATH+"/"+NEWSGROUPSFILE);
+  ofs_newsgroups << name << endl;
+
+  ofstream ofs_ng_name(groupPath+"/"+NG_NAMEFILE);
+  ofs_ng_name << name;
+  ofs_ng_name.close();
+
+  ofstream ofs_art_idcount(groupPath+"/"+ART_IDCOUNTFILE);
+  ofs_art_idcount << to_string(articleID);
+  ofs_art_idcount.close();
+
   return true;
 }
 
