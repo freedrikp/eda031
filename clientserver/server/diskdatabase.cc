@@ -8,9 +8,17 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <stdlib.h>
+#include <fstream>
 
 using namespace std;
 const string DiskDatabase::ROOTPATH = "diskdata";
+const string DiskDatabase::NEWSGROUPSFILE = "newsgroups";
+const string DiskDatabase::NG_IDCOUNTFILE = "ng_idcount";
+const string DiskDatabase::NG_NAMEFILE = "ng_name";
+const string DiskDatabase::ART_IDCOUNTFILE = "art_idcount";
+const string DiskDatabase::ART_NAMEFILE = "art_name";
+const string DiskDatabase::ART_AUTHORFILE = "art_author";
+const string DiskDatabase::ART_TEXTFILE = "art_text";
 
 DiskDatabase::DiskDatabase(): newsGroupCounter(0) {
   int status = mkdir(ROOTPATH.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -37,8 +45,12 @@ std::vector<Newsgroup> DiskDatabase::getNewsgroups(){
       if (ent->d_type == DT_DIR){
         size_t newsGroupID = atoi(ent->d_name);
         string newsGroupName = "apan boll";
-        printf ("%s\n", ent->d_name);
-        result.push_back({newsGroupName, newsGroupID});
+        ifstream ifs (ROOTPATH+"/"+ent->d_name+"/"+NG_NAMEFILE, ifstream::in);
+        if(ifs.good()){
+          getline(ifs, newsGroupName);
+          printf ("%s\n", ent->d_name);
+          result.push_back({newsGroupName, newsGroupID});
+        }
       }
     }
     closedir (rootdir);
