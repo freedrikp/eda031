@@ -29,16 +29,15 @@ The server will store a list of newsgrous each identified with a unique ID. For 
 This report serves as documentation of our project.
 
 \section{Description of system design}
-\includegraphics[width=\textwidth]{uml_seq}
 
-Both the client and the server utilize the supplied \texttt{clientserver} library, and they are inspired by the supplied test programs.
+Both the client and the server utilize the supplied \texttt{clientserver} library, and they are inspired by the supplied test programs. An example of the communication between client and server is outlined in figure\ref{sequml}.
 
-\textbf{Enligt projektbeskrivningen: "A detailed description of your system design, both for the server and the clients. Preferably
-use UML diagrams to give an overview of the design. (It is not necessary that you list
-attributes and methods in these diagrams.) You must also describe the classes, at least as
-far as stating the responsibilities of each class. Also give an overview of the dynamics of the server, i.e., trace an interaction between a
-client and the server from the point that the server receives a command until it sends the
-reply. UML sequence diagrams are good for this purpose."}
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{sequml}
+    \caption{Sequence diagram of client-server communication}
+    \label{sequml}
+\end{figure}
 
 \subsection{Server}
 
