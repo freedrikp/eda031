@@ -24,7 +24,7 @@
 \section{Introduction}
 In this project we are to develop a client/server news system. There will be two version of the server, one version that saves it's data in the primary memory and one version that saves the data on the disk memory instead. The client will be simple with only a text based interface.
 
-The server will store a list of newsgrous each identified with a unique ID. For each newsgroup the server will store a list of articles. The articles will be identified with each own ID that is unique for the newsgroup to which the article belongs.
+The server will store a list of newsgroups each identified with a unique ID. For each newsgroup the server will store a list of articles. The articles will be identified with each own ID that is unique for the newsgroup to which the article belongs.
 
 This report serves as documentation of our project.
 
@@ -57,9 +57,9 @@ In these data structures two simple classes are stored, namely, \texttt{Newsgrou
 
 
 \subsubsection{On-Disk Server}
-The diskserver stores information on the disk \emph{only}. Every time data is requested it is read from the disk, and every read is written to the disk. While this is significantly slower than keeping the database in the memory alongside the disk, we do not risk running out of memory as the database grows.
+The disk server stores information on the disk \emph{only}. Every time data is requested it is read from the disk, and every read is written to the disk. While this is significantly slower than keeping the database in the memory alongside the disk, we do not risk running out of memory as the database grows.
 
-The information is stored in a specific folder, where each group has its own folder, and each article has its own folder inside these. There are also files used for keeping track of the groupnames in use, as well as for keeping track of the last inserted group and article ID:s.
+The information is stored in a specific folder, where each group has its own folder, and each article has its own folder inside these. There are also files used for keeping track of the group names in use, as well as for keeping track of the last inserted group and article ID:s.
 
 \subsection{Client}
 The client is divided into four parts. These four parts consists of two classes, one struct and a file containing a few methods including the \texttt{main}-method of the client itself. Two of these parts were provided. An overview of the client parts is shown in figure \ref{clientUML}.
@@ -77,9 +77,9 @@ The \texttt{Connection} class simply describes a connection to the server part a
 
 The \texttt{ClientMessageHandler} uses a \texttt{Connection} and the constants defined in \texttt{Protocol} in order to send commands to the server and present the responses. Every action that the client can issue to the server is represented as a single method in the \texttt{ClientMessageHandler} class. For instance, it has methods such as \texttt{createNewsgroup}, \texttt{deleteNewsgroup}, \texttt{createArticle} and \texttt{getArticle} among others. This class also contains some private helper methods used to read and write strings and numbers received from and sent to the server.
 
-The file named \texttt{Client} contains the \texttt{main}-method of the client and handles interaction with the user. For example, this file contains methods such as \texttt{queryUserMenu}, \texttt{promptInt}, \texttt{promptString} and \texttt{interact}. These methods are fairly straightforward, the prompt methods are simply helper functions used to request input from the user. \texttt{queryUserMenu} displays a menu of all avialable actions to the user and asks for a selection. \texttt{interact} connects all functions together. It contains a loop that displays the menu and, depending on the selection, uses the prompt functions to gather input and finally calls the appropriate method in the \texttt{ClientMessageHandler} class. The \texttt{main}-method simply initializes the \texttt{ClientMessagehandler} and calls the \texttt{interact} function.
+The file named \texttt{Client} contains the \texttt{main}-method of the client and handles interaction with the user. For example, this file contains methods such as \texttt{queryUserMenu}, \texttt{promptInt}, \texttt{promptString} and \texttt{interact}. These methods are fairly straightforward, the prompt methods are simply helper functions used to request input from the user. \texttt{queryUserMenu} displays a menu of all available actions to the user and asks for a selection. \texttt{interact} connects all functions together. It contains a loop that displays the menu and, depending on the selection, uses the prompt functions to gather input and finally calls the appropriate method in the \texttt{ClientMessageHandler} class. The \texttt{main}-method simply initializes the \texttt{ClientMessagehandler} and calls the \texttt{interact} function.
 
 \section{Conclusions}
 We fulfil all of the requirements listed in section 2 of the project description.
-There seems to be some issues when running the diskserver on a machine running OS X, however it runs fine on Linux machines.
+There seems to be some issues when running the disk server on a machine running OS X, however it runs fine on Linux machines.
 \end{document}
