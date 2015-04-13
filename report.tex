@@ -61,7 +61,7 @@ The diskserver stores information on the disk \emph{only}. Every time data is re
 The information is stored in a specific folder, where each group has its own folder, and each article has its own folder inside these. There are also files used for keeping track of the groupnames in use, as well as for keeping track of the last inserted group and article ID:s.
 
 \subsection{Client}
-The client is divided into four parts. These four parts consists of two classes, one struct and a file containing a few methods including the \texttt{main}-method of the client itself. Out of these four parts we have only developed two. An overview of the client parts is shown in figure \ref{clientUML}.
+The client is divided into four parts. These four parts consists of two classes, one struct and a file containing a few methods including the \texttt{main}-method of the client itself. Two of these parts were provided. An overview of the client parts is shown in figure \ref{clientUML}.
 
 \begin{figure}
     \centering
@@ -76,9 +76,11 @@ The \texttt{Connection} class simply describes a connection to the server part a
 
 The \texttt{ClientMessageHandler} uses a \texttt{Connection} and the constants defined in \texttt{Protocol} in order to send commands to the server and present the responses. Every action that the client can issue to the server is represented as a single method in the \texttt{ClientMessageHandler} class. For instance, it has methods such as \texttt{createNewsgroup}, \texttt{deleteNewsgroup}, \texttt{createArticle} and \texttt{getArticle} among others. This class also contains some private helper methods used to read and write strings and numbers received from and sent to the server.
 
-The file named \texttt{Client} contains the \texttt{main}-method of the entire client and everything that is connected to the user interface and thus all interaction with the user. For example, this file contains methods such as \texttt{queryUserMenu}, \texttt{promptInt}, \texttt{promptString} and \texttt{interact}. These methods are fairly straightforward, the prompt methods are simply helper functions used to request input from the user. \texttt{queryUserMenu} displays to the user a menu of all available actions and asks for a selection. \texttt{interact} connects all functions together. It contains a loop that dislays the menu and depending on the selection it uses the prompt functions to gather input and finally it calls the appropriate method in the \texttt{ClientMessageHandler}. The \texttt{main}-method simply initializes the \texttt{ClientMessagehandler} and calls the \texttt{interact} function.
+The file named \texttt{Client} contains the \texttt{main}-method of the client and handles interaction with the user. For example, this file contains methods such as \texttt{queryUserMenu}, \texttt{promptInt}, \texttt{promptString} and \texttt{interact}. These methods are fairly straightforward, the prompt methods are simply helper functions used to request input from the user. \texttt{queryUserMenu} displays a menu of all avialable actions to the user and asks for a selection. \texttt{interact} connects all functions together. It contains a loop that displays the menu and, depending on the selection, uses the prompt functions to gather input and finally calls the appropriate method in the \texttt{ClientMessageHandler} class. The \texttt{main}-method simply initializes the \texttt{ClientMessagehandler} and calls the \texttt{interact} function.
 
 \section{Conclusions}
+We fulfil all of the requirements listed in section 2 of the project description.
+
 
 \textbf{Enligt projektbeskrivning:
 "Requirements that you fulfill, problems that you haven’t succeeded in solving,
