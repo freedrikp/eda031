@@ -10,7 +10,6 @@ CPPFLAGS  = -std=c++11 -I..
 CXXFLAGS  = -g -O2 -Wall -W -pedantic-errors
 CXXFLAGS += -Wmissing-braces -Wparentheses -Wold-style-cast
 CXXFLAGS += -std=c++11
-LDFLAGS   = -g -L..
 #CPPFLAGS += -stdlib=libc++
 #CXXFLAGS += -stdlib=libc++
 #LDFLAGS +=  -stdlib=libc++
