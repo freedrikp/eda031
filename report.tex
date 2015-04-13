@@ -43,7 +43,13 @@ Describes the common things between the servers
 
 \subsubsection{In-Memory Server}
 
-Describes the unique things in Memory server
+This version of the server uses the class called \texttt{MemoryDatabase} to store information about all newsgroups and articles.
+
+The unique thing about this database is that it stores all data in primary memory and thus looses all data when shutdown. In order to store data in primary memory it keeps four data structures to organize the data. It has a counter for the newgroups id:s and a map of newsgroups id:s to counters for article id:s within each newsgroup. These counters are never decreased when objects are removed but only increased whenever objects are added. This is what ensures that id:s will be unique for each object ever created.
+
+The newsgroups are stored in a map, mapping the id to the newsgroup. Articles are stored in a map within a map, mapping from newsgroup id to a map containing elements that maps an article id to an article.
+
+In these data structures two simple classes are stored, namely, \texttt{Newsgroup} and \texttt{Article}. Id:s are stored as integers in the form of \texttt{size\_t}.
 
 
 \subsubsection{On-Disk Server}
