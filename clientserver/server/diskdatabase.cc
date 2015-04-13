@@ -186,34 +186,14 @@ bool DiskDatabase::addArticle(size_t nGroupID, string title, string author, stri
 }
 
 std::vector<Article> DiskDatabase::getArticles(size_t nGroupID){
-  //TODO: använd getArticle istället för duplicerad kod
   std::vector<Article> result;
-
   DIR* rootdir;
   struct dirent *ent;
   if ((rootdir = opendir((ROOTPATH+"/"+to_string(nGroupID)).c_str())) != NULL) {
     while ((ent = readdir(rootdir)) != NULL) {
       if (ent->d_type == DT_DIR){
         size_t articleID = atoi(ent->d_name);
-        string articleName = "FATAL_ERROR_OOPS";
-        string articleAuthor = "FATAL_ERROR_OOPS";
-        string articleText = "";
-        string articlePath = ROOTPATH+"/"+to_string(nGroupID)+"/"+ent->d_name;
-        ifstream name_ifs (articlePath+ART_TITLEFILE, ifstream::in);
-        ifstream auth_ifs (articlePath+ART_AUTHORFILE, ifstream::in);
-        ifstream text_ifs (articlePath+ART_TEXTFILE, ifstream::in);
-        if(name_ifs.good() && auth_ifs.good()){
-          getline(name_ifs, articleName);
-          getline(auth_ifs, articleAuthor);
-          while(text_ifs.good()){
-            string line;
-            getline(text_ifs, line);
-            articleText += line;
-            if(text_ifs.good())
-              articleText += "\n";
-          }
-          result.push_back({articleName, articleAuthor, articleText, articleID});
-        }
+        result.push_back(getArticle(nGroupID, articleID));
       }
     }
     closedir (rootdir);
