@@ -42,26 +42,23 @@ reply. UML sequence diagrams are good for this purpose."}
 
 The server consists of five parts. Entities representing newsgroups and articles, a database keeping track of these, a server which handles connections and a message handler which does the communication with the client.
 
-Describes the common things between the servers
+The only difference between the two sever programs is the type of the database attribute, they are identical in all other regards.
 
 \subsubsection{In-Memory Server}
 
 This version of the server uses the class called \texttt{MemoryDatabase} to store information about all newsgroups and articles.
 
-The unique thing about this database is that it stores all data in primary memory and thus looses all data when shutdown. In order to store data in primary memory it keeps four data structures to organize the data. It has a counter for the newgroups id:s and a map of newsgroups id:s to counters for article id:s within each newsgroup. These counters are never decreased when objects are removed but only increased whenever objects are added. This is what ensures that id:s will be unique for each object ever created.
+The unique thing about this database is that it stores all data in memory and thus looses all data upon shutdown. In order to store the data in memory it keeps four data structures to organize the data. It has a counter for the newgroup ID:s and a map mapping newsgroup ID:s to counters for article ID:s within each newsgroup. These counters are never decreased when objects are removed and increased whenever objects are added. This is what ensures that ID:s are unique for each object created.
 
-The newsgroups are stored in a map, mapping the id to the newsgroup. Articles are stored in a map within a map, mapping from newsgroup id to a map containing elements that maps an article id to an article.
+The newsgroups are stored in a map, mapping ID to newsgroup. Articles are stored in a map within a map, mapping from newsgroup ID to a map mapping article ID:s to articles.
 
-In these data structures two simple classes are stored, namely, \texttt{Newsgroup} and \texttt{Article}. Id:s are stored as integers in the form of \texttt{size\_t}.
+In these data structures two simple classes are stored, namely, \texttt{Newsgroup} and \texttt{Article}. ID:s are stored as integers in the form of \texttt{size\_t}.
 
 
 \subsubsection{On-Disk Server}
 The diskserver stores information on the disk \emph{only}. Every time data is requested it is read from the disk, and every read is written to the disk. While this is significantly slower than keeping the database in the memory alongside the disk, we do not risk running out of memory as the database grows.
 
-The information is stored in a specific folder, where each group has its own folder, and each article has its own folder inside these.
-
-Apart from the \texttt{diskdatabase} the diskserver is identical to the memoryserver. 
-
+The information is stored in a specific folder, where each group has its own folder, and each article has its own folder inside these. There are also files used for keeping track of the groupnames in use, as well as for keeping track of the last inserted group and article ID:s.
 
 \subsection{Client}
 The client is divided into four parts. These four parts consists of two classes, one struct and a file containing a few methods including the \texttt{main}-method of the client itself. Out of these four parts we have only developed two. An overview of the client parts is shown in figure \ref{clientUML}.

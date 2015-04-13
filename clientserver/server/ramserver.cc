@@ -75,10 +75,12 @@ int main(int argc, char* argv[]){
 					default:
 					throw ProtocolViolationException("Unknown error.");
 					break;
-				}	
+				}
 				vector<Newsgroup> groups = database.getNewsgroups();
 			} catch (ProtocolViolationException& e) {
 				cout << e.what() << endl;
+				server.deregisterConnection(conn);
+				cout << "Closed connecion to misbehaving client" << endl;
 			} catch (ConnectionClosedException&) {
 				server.deregisterConnection(conn);
 				cout << "Client closed connection" << endl;
