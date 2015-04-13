@@ -7,29 +7,14 @@ enum Selection {LIST_NG = 1,CREATE_NG = 2,DELETE_NG = 3,LIST_ART = 4,CREATE_ART 
 
 bool headingNewline = false;
 
-
-Selection queryUserMenu(){
-  std::cout << "------------------------------" << std::endl;
-  std::cout << "What is thy bidding, my master?" << std::endl << std::endl;
-  std::cout << "List newsgroups - 1" << std::endl;
-  std::cout << "Create newsgroup - 2" << std::endl;
-  std::cout << "Delete newsgroup - 3" << std::endl;
-  std::cout << "List articles - 4" << std::endl;
-  std::cout << "Create article - 5" << std::endl;
-  std::cout << "Delete article - 6" << std::endl;
-  std::cout << "Get article - 7" << std::endl;
-  std::cout << "------------------------------" << std::endl << "Input number: ";
-  int selection;
-  std::cin >> selection;
-  std::cout << std::endl;
-  headingNewline = true;
-  return static_cast<Selection>(selection);
-}
-
 int promptInt(std::string message){
   std::cout << message << std::endl;
   int input;
-  std::cin >> input;
+  while(!(std::cin >> input).good()){
+	  std::cin.clear();
+std::cin.ignore(10000,'\n');		
+    std::cout << "Not a number, try again!" << std::endl;
+  }
   std::cout << std::endl;
   headingNewline = true;
   return input;
@@ -45,6 +30,21 @@ std::string promptString(std::string message){
   std::cout << std::endl;
   headingNewline = false;
   return input;
+}
+
+Selection queryUserMenu(){
+  std::cout << "------------------------------" << std::endl;
+  std::cout << "What is thy bidding, my master?" << std::endl << std::endl;
+  std::cout << "List newsgroups - 1" << std::endl;
+  std::cout << "Create newsgroup - 2" << std::endl;
+  std::cout << "Delete newsgroup - 3" << std::endl;
+  std::cout << "List articles - 4" << std::endl;
+  std::cout << "Create article - 5" << std::endl;
+  std::cout << "Delete article - 6" << std::endl;
+  std::cout << "Get article - 7" << std::endl;
+  std::cout << "------------------------------" << std::endl;
+  int selection = promptInt("Input number: ");
+  return static_cast<Selection>(selection);
 }
 
 void interact(ClientMessageHandler& client){
@@ -92,7 +92,7 @@ void interact(ClientMessageHandler& client){
         break;
       }
       default:
-      std::cout << "Wrong selection" << std::endl;
+	std::cout << "Wrong selection: " <<sel<< std::endl;
 
 
 
